@@ -1,0 +1,58 @@
+{
+  "$schema": "env-manifest-v1",
+  "variables": [
+    {
+      "name": "DATABASE_URL",
+      "required": true,
+      "purpose": "PostgreSQL connection string for primary application database",
+      "usage": "PostgreSQL connection string for primary application database",
+      "validation": "Must start with postgresql:// and include credentials, host, port, and database name",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/db/index.ts",
+        "server/db/migrate.ts"
+      ],
+      "whyRequired": "Core database connectivity required for all data operations, multi-tenant isolation, and processing job execution"
+    },
+    {
+      "name": "JWT_SECRET",
+      "required": true,
+      "purpose": "Secret key for signing and verifying JWT access and refresh tokens",
+      "usage": "Secret key for signing and verifying JWT access and refresh tokens",
+      "validation": "Minimum 32 characters, alphanumeric with special characters recommended",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/lib/auth.ts",
+        "server/middleware/auth.ts",
+        "server/services/auth.service.ts"
+      ],
+      "whyRequired": "Authentication security - all session tokens must be cryptographically signed to prevent token forgery and unauthorized access"
+    },
+    {
+      "name": "NODE_ENV",
+      "required": true,
+      "purpose": "Application environment mode (development, production, test)",
+      "usage": "Application environment mode (development, production, test)",
+      "validation": "Must be one of: development, production, test",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/index.ts",
+        "server/lib/config.ts",
+        "vite.config.ts"
+      ],
+      "whyRequired": "Controls application behavior, security settings, and logging based on deployment environment"
+    },
+    {
+      "name": "PORT",
+      "required": true,
+      "purpose": "Primary HTTP server listen port",
+      "usage": "Primary HTTP server listen port (externally-facing). Production: Express serves both SPA and API on this port (bound to 0.0.0.0). Development: When using dual-server setup (e.g., Vite + Express), PORT is the frontend dev server port (e.g., Vite on 5000) while the backend API runs on port 3001 (not controlled by PORT). Frontend proxies /api requests to backend.",
+      "default": "5000",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/index.ts"
+      ],
+      "whyRequired": "Required to bind the HTTP server to a network port for incoming requests"
+    }
+  ]
+}

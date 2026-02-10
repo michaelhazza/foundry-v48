@@ -1,0 +1,17 @@
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+
+interface RequireAuthProps {
+  children: React.ReactNode;
+}
+
+export function RequireAuth({ children }: RequireAuthProps) {
+  const location = useLocation();
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    return <Navigate to="/login" state={{ returnTo: location.pathname }} replace />;
+  }
+
+  return <>{children}</>;
+}

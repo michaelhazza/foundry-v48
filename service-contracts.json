@@ -1,0 +1,1434 @@
+{
+  "$schema": "service-contracts-v2",
+  "deferredRouteHandling": "excludeFromRegistration",
+  "endpoints": [
+    {
+      "path": "/api/auth/register",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/auth.routes.ts",
+      "middleware": [],
+      "authentication": "none",
+      "serviceContract": {
+        "serviceFile": "server/services/auth.service.ts",
+        "methodName": "register",
+        "signature": "register(email, password, name, inviteToken)",
+        "routeArgs": ["req.body.email", "req.body.password", "req.body.name", "req.body.inviteToken"],
+        "parameters": [
+          {
+            "name": "email",
+            "type": "string",
+            "source": "req.body.email"
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "source": "req.body.password"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "source": "req.body.name"
+          },
+          {
+            "name": "inviteToken",
+            "type": "string",
+            "source": "req.body.inviteToken"
+          }
+        ],
+        "returns": {
+          "type": "{ user: User, token: string }",
+          "omitFields": ["password"]
+        },
+        "throws": ["ValidationError", "InviteTokenError"],
+        "purpose": "registerUser",
+        "authRequired": false,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Create new user account with invite token validation"
+      }
+    },
+    {
+      "path": "/api/auth/login",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/auth.routes.ts",
+      "middleware": [],
+      "authentication": "none",
+      "serviceContract": {
+        "serviceFile": "server/services/auth.service.ts",
+        "methodName": "login",
+        "signature": "login(email, password)",
+        "routeArgs": ["req.body.email", "req.body.password"],
+        "parameters": [
+          {
+            "name": "email",
+            "type": "string",
+            "source": "req.body.email"
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "source": "req.body.password"
+          }
+        ],
+        "returns": {
+          "type": "{ user: User, token: string }",
+          "omitFields": ["password"]
+        },
+        "throws": ["AuthenticationError"],
+        "purpose": "authenticateUser",
+        "authRequired": false,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Authenticate user and return JWT token"
+      }
+    },
+    {
+      "path": "/api/auth/session",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/auth.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/auth.service.ts",
+        "methodName": "getSession",
+        "signature": "getSession(userId)",
+        "routeArgs": ["req.user.id"],
+        "parameters": [
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.user.id"
+          }
+        ],
+        "returns": {
+          "type": "User",
+          "omitFields": ["password"]
+        },
+        "throws": ["AuthenticationError"],
+        "purpose": "getCurrentUser",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve current authenticated user session"
+      }
+    },
+    {
+      "path": "/api/organisations/me",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/organisations.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/organisations.service.ts",
+        "methodName": "getMyOrganisation",
+        "signature": "getMyOrganisation(organisationId)",
+        "routeArgs": ["req.user.organisationId"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          }
+        ],
+        "returns": {
+          "type": "Organisation",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getCurrentOrganisation",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve current user's organisation details"
+      }
+    },
+    {
+      "path": "/api/organisations/me",
+      "method": "PATCH",
+      "status": "required",
+      "routeFile": "server/routes/organisations.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/organisations.service.ts",
+        "methodName": "updateMyOrganisation",
+        "signature": "updateMyOrganisation(organisationId, updates)",
+        "routeArgs": ["req.user.organisationId", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "updates",
+            "type": "Partial<Organisation>",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "Organisation",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "UnauthorizedError"],
+        "purpose": "updateOrganisation",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Update organisation details (admin only)"
+      }
+    },
+    {
+      "path": "/api/users",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/users.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/users.service.ts",
+        "methodName": "listUsers",
+        "signature": "listUsers(organisationId, page, limit)",
+        "routeArgs": ["req.user.organisationId", "req.query.page", "req.query.limit"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          }
+        ],
+        "returns": {
+          "type": "User[]",
+          "omitFields": ["password"]
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listUsers",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List users in current organisation with pagination"
+      }
+    },
+    {
+      "path": "/api/users/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/users.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/users.service.ts",
+        "methodName": "getUserById",
+        "signature": "getUserById(organisationId, userId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "User",
+          "omitFields": ["password"]
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getUser",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve specific user by ID within organisation"
+      }
+    },
+    {
+      "path": "/api/users/:id",
+      "method": "PATCH",
+      "status": "required",
+      "routeFile": "server/routes/users.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/users.service.ts",
+        "methodName": "updateUser",
+        "signature": "updateUser(organisationId, userId, updates)",
+        "routeArgs": ["req.user.organisationId", "req.params.id", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.params.id"
+          },
+          {
+            "name": "updates",
+            "type": "Partial<User>",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "User",
+          "omitFields": ["password"]
+        },
+        "throws": ["ValidationError", "NotFoundError", "UnauthorizedError"],
+        "purpose": "updateUser",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Update user details (admin only)"
+      }
+    },
+    {
+      "path": "/api/users/:id",
+      "method": "DELETE",
+      "status": "required",
+      "routeFile": "server/routes/users.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/users.service.ts",
+        "methodName": "deleteUser",
+        "signature": "deleteUser(organisationId, userId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "void",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError", "UnauthorizedError"],
+        "purpose": "deleteUser",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Soft-delete user (admin only)"
+      }
+    },
+    {
+      "path": "/api/users/invite",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/users.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/users.service.ts",
+        "methodName": "createInvite",
+        "signature": "createInvite(organisationId, email, role)",
+        "routeArgs": ["req.user.organisationId", "req.body.email", "req.body.role"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "source": "req.body.email"
+          },
+          {
+            "name": "role",
+            "type": "UserRole",
+            "source": "req.body.role"
+          }
+        ],
+        "returns": {
+          "type": "{ inviteToken: string, email: string }",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "UnauthorizedError"],
+        "purpose": "createUserInvite",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Generate invite token for new user (admin only)"
+      }
+    },
+    {
+      "path": "/api/projects",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "createProject",
+        "signature": "createProject(organisationId, userId, projectData)",
+        "routeArgs": ["req.user.organisationId", "req.user.id", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.user.id"
+          },
+          {
+            "name": "projectData",
+            "type": "CreateProjectDTO",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "Project",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "createProject",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Create new project in organisation"
+      }
+    },
+    {
+      "path": "/api/projects",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "listProjects",
+        "signature": "listProjects(organisationId, page, limit, status)",
+        "routeArgs": ["req.user.organisationId", "req.query.page", "req.query.limit", "req.query.status"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "status",
+            "type": "ProjectStatus",
+            "source": "req.query.status",
+            "typeCoercion": "service"
+          }
+        ],
+        "returns": {
+          "type": "Project[]",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listProjects",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List projects with optional status filter. Query parameter status includes typeCoercion: service to convert string to ProjectStatus enum at service layer."
+      }
+    },
+    {
+      "path": "/api/projects/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "getProjectById",
+        "signature": "getProjectById(organisationId, projectId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "Project",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getProject",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve specific project by ID"
+      }
+    },
+    {
+      "path": "/api/projects/:id",
+      "method": "PATCH",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "updateProject",
+        "signature": "updateProject(organisationId, projectId, updates)",
+        "routeArgs": ["req.user.organisationId", "req.params.id", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.id"
+          },
+          {
+            "name": "updates",
+            "type": "Partial<Project>",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "Project",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "NotFoundError"],
+        "purpose": "updateProject",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Update project details and configuration"
+      }
+    },
+    {
+      "path": "/api/projects/:id",
+      "method": "DELETE",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "deleteProject",
+        "signature": "deleteProject(organisationId, projectId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "void",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "deleteProject",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Soft-delete project and cascade to child entities"
+      }
+    },
+    {
+      "path": "/api/sources",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/sources.routes.ts",
+      "middleware": ["authenticate", "uploadFile"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/sources.service.ts",
+        "methodName": "createSource",
+        "signature": "createSource(organisationId, projectId, sourceData, file)",
+        "routeArgs": ["req.user.organisationId", "req.body.projectId", "req.body", "req.file"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.body.projectId"
+          },
+          {
+            "name": "sourceData",
+            "type": "CreateSourceDTO",
+            "source": "req.body"
+          },
+          {
+            "name": "file",
+            "type": "File",
+            "source": "req.file"
+          }
+        ],
+        "returns": {
+          "type": "Source",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "FileSizeError"],
+        "purpose": "createSource",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": true,
+        "acceptsBody": true,
+        "notes": "Create source with optional file upload"
+      }
+    },
+    {
+      "path": "/api/sources",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/sources.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/sources.service.ts",
+        "methodName": "listSources",
+        "signature": "listSources(organisationId, projectId, page, limit, status)",
+        "routeArgs": ["req.user.organisationId", "req.query.projectId", "req.query.page", "req.query.limit", "req.query.status"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.query.projectId"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "status",
+            "type": "SourceStatus",
+            "source": "req.query.status",
+            "typeCoercion": "service"
+          }
+        ],
+        "returns": {
+          "type": "Source[]",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listSources",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List sources with optional project and status filters. Query parameter status includes typeCoercion: service to convert string to SourceStatus enum."
+      }
+    },
+    {
+      "path": "/api/sources/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/sources.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/sources.service.ts",
+        "methodName": "getSourceById",
+        "signature": "getSourceById(organisationId, sourceId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "sourceId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "Source",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getSource",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve specific source by ID"
+      }
+    },
+    {
+      "path": "/api/sources/:id",
+      "method": "PATCH",
+      "status": "required",
+      "routeFile": "server/routes/sources.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/sources.service.ts",
+        "methodName": "updateSource",
+        "signature": "updateSource(organisationId, sourceId, updates)",
+        "routeArgs": ["req.user.organisationId", "req.params.id", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "sourceId",
+            "type": "string",
+            "source": "req.params.id"
+          },
+          {
+            "name": "updates",
+            "type": "Partial<Source>",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "Source",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "NotFoundError"],
+        "purpose": "updateSource",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Update source configuration"
+      }
+    },
+    {
+      "path": "/api/sources/:id",
+      "method": "DELETE",
+      "status": "required",
+      "routeFile": "server/routes/sources.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/sources.service.ts",
+        "methodName": "deleteSource",
+        "signature": "deleteSource(organisationId, sourceId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "sourceId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "void",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "deleteSource",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Soft-delete source"
+      }
+    },
+    {
+      "path": "/api/processing-jobs",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/processingJobs.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/processingJobs.service.ts",
+        "methodName": "createProcessingJob",
+        "signature": "createProcessingJob(organisationId, userId, projectId, jobConfig)",
+        "routeArgs": ["req.user.organisationId", "req.user.id", "req.body.projectId", "req.body"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.user.id"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.body.projectId"
+          },
+          {
+            "name": "jobConfig",
+            "type": "CreateProcessingJobDTO",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "ProcessingJob",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "RecordLimitError"],
+        "purpose": "createProcessingJob",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Create and queue new processing job with configuration snapshot"
+      }
+    },
+    {
+      "path": "/api/processing-jobs",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/processingJobs.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/processingJobs.service.ts",
+        "methodName": "listProcessingJobs",
+        "signature": "listProcessingJobs(organisationId, projectId, page, limit, status)",
+        "routeArgs": ["req.user.organisationId", "req.query.projectId", "req.query.page", "req.query.limit", "req.query.status"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.query.projectId"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "status",
+            "type": "ProcessingJobStatus",
+            "source": "req.query.status",
+            "typeCoercion": "service"
+          }
+        ],
+        "returns": {
+          "type": "ProcessingJob[]",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listProcessingJobs",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List processing jobs with optional filters. Query parameter status includes typeCoercion: service to convert string to ProcessingJobStatus enum."
+      }
+    },
+    {
+      "path": "/api/processing-jobs/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/processingJobs.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/processingJobs.service.ts",
+        "methodName": "getProcessingJobById",
+        "signature": "getProcessingJobById(organisationId, jobId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "jobId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "ProcessingJob",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getProcessingJob",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve processing job details with execution logs"
+      }
+    },
+    {
+      "path": "/api/processing-jobs/:id/retry",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/processingJobs.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/processingJobs.service.ts",
+        "methodName": "retryProcessingJob",
+        "signature": "retryProcessingJob(organisationId, userId, jobId)",
+        "routeArgs": ["req.user.organisationId", "req.user.id", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "source": "req.user.id"
+          },
+          {
+            "name": "jobId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "ProcessingJob",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError", "InvalidStateError"],
+        "purpose": "retryProcessingJob",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retry failed processing job with same configuration"
+      }
+    },
+    {
+      "path": "/api/datasets",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/datasets.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/datasets.service.ts",
+        "methodName": "listDatasets",
+        "signature": "listDatasets(organisationId, projectId, page, limit, outputFormat)",
+        "routeArgs": ["req.user.organisationId", "req.query.projectId", "req.query.page", "req.query.limit", "req.query.outputFormat"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.query.projectId"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "outputFormat",
+            "type": "OutputFormat",
+            "source": "req.query.outputFormat",
+            "typeCoercion": "service"
+          }
+        ],
+        "returns": {
+          "type": "Dataset[]",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listDatasets",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List datasets with optional filters. Query parameter outputFormat includes typeCoercion: service to convert string to OutputFormat enum."
+      }
+    },
+    {
+      "path": "/api/datasets/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/datasets.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/datasets.service.ts",
+        "methodName": "getDatasetById",
+        "signature": "getDatasetById(organisationId, datasetId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "datasetId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "Dataset",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getDataset",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve dataset with lineage metadata"
+      }
+    },
+    {
+      "path": "/api/datasets/:id/download",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/datasets.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/datasets.service.ts",
+        "methodName": "downloadDataset",
+        "signature": "downloadDataset(organisationId, datasetId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "datasetId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "Stream",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "downloadDataset",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Stream dataset file download"
+      }
+    },
+    {
+      "path": "/api/datasets/:id",
+      "method": "DELETE",
+      "status": "required",
+      "routeFile": "server/routes/datasets.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/datasets.service.ts",
+        "methodName": "deleteDataset",
+        "signature": "deleteDataset(organisationId, datasetId)",
+        "routeArgs": ["req.user.organisationId", "req.params.id"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "datasetId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "void",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "deleteDataset",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Soft-delete dataset"
+      }
+    },
+    {
+      "path": "/api/canonical-schemas",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/canonicalSchemas.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/canonicalSchemas.service.ts",
+        "methodName": "listCanonicalSchemas",
+        "signature": "listCanonicalSchemas(page, limit, isPublished)",
+        "routeArgs": ["req.query.page", "req.query.limit", "req.query.isPublished"],
+        "parameters": [
+          {
+            "name": "page",
+            "type": "number",
+            "source": "req.query.page",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "limit",
+            "type": "number",
+            "source": "req.query.limit",
+            "typeCoercion": "runtime"
+          },
+          {
+            "name": "isPublished",
+            "type": "boolean",
+            "source": "req.query.isPublished",
+            "typeCoercion": "runtime"
+          }
+        ],
+        "returns": {
+          "type": "CanonicalSchema[]",
+          "omitFields": []
+        },
+        "throws": ["ValidationError"],
+        "purpose": "listCanonicalSchemas",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "List platform-level canonical schemas with optional published filter. Query parameter isPublished includes typeCoercion: runtime to convert string to boolean."
+      }
+    },
+    {
+      "path": "/api/canonical-schemas/:id",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/canonicalSchemas.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/canonicalSchemas.service.ts",
+        "methodName": "getCanonicalSchemaById",
+        "signature": "getCanonicalSchemaById(schemaId)",
+        "routeArgs": ["req.params.id"],
+        "parameters": [
+          {
+            "name": "schemaId",
+            "type": "string",
+            "source": "req.params.id"
+          }
+        ],
+        "returns": {
+          "type": "CanonicalSchema",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getCanonicalSchema",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve canonical schema by ID (platform-level resource)"
+      }
+    },
+    {
+      "path": "/api/canonical-schemas",
+      "method": "POST",
+      "status": "required",
+      "routeFile": "server/routes/canonicalSchemas.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/canonicalSchemas.service.ts",
+        "methodName": "createCanonicalSchema",
+        "signature": "createCanonicalSchema(schemaData)",
+        "routeArgs": ["req.body"],
+        "parameters": [
+          {
+            "name": "schemaData",
+            "type": "CreateCanonicalSchemaDTO",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "CanonicalSchema",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "UnauthorizedError"],
+        "purpose": "createCanonicalSchema",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Create new canonical schema (admin only, platform-level)"
+      }
+    },
+    {
+      "path": "/api/canonical-schemas/:id",
+      "method": "PATCH",
+      "status": "required",
+      "routeFile": "server/routes/canonicalSchemas.routes.ts",
+      "middleware": ["authenticate", "requireAdmin"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/canonicalSchemas.service.ts",
+        "methodName": "updateCanonicalSchema",
+        "signature": "updateCanonicalSchema(schemaId, updates)",
+        "routeArgs": ["req.params.id", "req.body"],
+        "parameters": [
+          {
+            "name": "schemaId",
+            "type": "string",
+            "source": "req.params.id"
+          },
+          {
+            "name": "updates",
+            "type": "Partial<CanonicalSchema>",
+            "source": "req.body"
+          }
+        ],
+        "returns": {
+          "type": "CanonicalSchema",
+          "omitFields": []
+        },
+        "throws": ["ValidationError", "NotFoundError", "UnauthorizedError"],
+        "purpose": "updateCanonicalSchema",
+        "authRequired": true,
+        "rbac": "admin",
+        "fileUpload": false,
+        "acceptsBody": true,
+        "notes": "Update canonical schema (admin only, increments schemaDefinitionVersion)"
+      }
+    },
+    {
+      "path": "/api/projects/:projectId/sources",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "getProjectSources",
+        "signature": "getProjectSources(organisationId, projectId)",
+        "routeArgs": ["req.user.organisationId", "req.params.projectId"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.projectId"
+          }
+        ],
+        "returns": {
+          "type": "Source[]",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getProjectSources",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve all sources associated with specific project"
+      }
+    },
+    {
+      "path": "/api/projects/:projectId/processing-jobs",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "getProjectProcessingJobs",
+        "signature": "getProjectProcessingJobs(organisationId, projectId)",
+        "routeArgs": ["req.user.organisationId", "req.params.projectId"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.projectId"
+          }
+        ],
+        "returns": {
+          "type": "ProcessingJob[]",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getProjectJobs",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve all processing jobs for specific project"
+      }
+    },
+    {
+      "path": "/api/projects/:projectId/datasets",
+      "method": "GET",
+      "status": "required",
+      "routeFile": "server/routes/projects.routes.ts",
+      "middleware": ["authenticate"],
+      "authentication": "required",
+      "serviceContract": {
+        "serviceFile": "server/services/projects.service.ts",
+        "methodName": "getProjectDatasets",
+        "signature": "getProjectDatasets(organisationId, projectId)",
+        "routeArgs": ["req.user.organisationId", "req.params.projectId"],
+        "parameters": [
+          {
+            "name": "organisationId",
+            "type": "string",
+            "source": "req.user.organisationId"
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "source": "req.params.projectId"
+          }
+        ],
+        "returns": {
+          "type": "Dataset[]",
+          "omitFields": []
+        },
+        "throws": ["NotFoundError"],
+        "purpose": "getProjectDatasets",
+        "authRequired": true,
+        "rbac": null,
+        "fileUpload": false,
+        "acceptsBody": false,
+        "notes": "Retrieve all datasets produced by specific project"
+      }
+    }
+  ],
+  "fileUploadConfig": {
+    "maxSizeMb": 100,
+    "allowedMimeTypes": [
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/json"
+    ],
+    "maxRecordsPerJob": 100000,
+    "retentionDays": 30,
+    "encryption": "AES-256-GCM"
+  }
+}
