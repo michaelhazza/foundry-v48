@@ -1,0 +1,77 @@
+{
+  "$schema": "env-manifest-v1",
+  "required": [
+    {
+      "name": "DATABASE_URL",
+      "usage": "PostgreSQL connection string for primary application database",
+      "validation": "Must start with postgresql:// and include credentials, host, port, and database name",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/db/index.ts",
+        "server/db/migrate.ts"
+      ],
+      "whyRequired": "Core database connectivity required for all data operations, multi-tenant isolation, and processing job execution"
+    },
+    {
+      "name": "JWT_SECRET",
+      "usage": "Secret key for signing and verifying JWT access and refresh tokens",
+      "validation": "Minimum 32 characters, alphanumeric with special characters recommended",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/lib/auth.ts",
+        "server/middleware/auth.ts",
+        "server/services/auth.service.ts"
+      ],
+      "whyRequired": "Authentication security - all session tokens must be cryptographically signed to prevent token forgery and unauthorized access"
+    },
+    {
+      "name": "APP_URL",
+      "usage": "Canonical application URL for CORS origin validation and callback URLs in authentication flows",
+      "validation": "Must be a valid URL with scheme (e.g., https://app.foundry.example.com). No trailing slash.",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/middleware/cors.ts",
+        "server/lib/config.ts",
+        "server/services/invite.service.ts"
+      ],
+      "whyRequired": "CORS origin must be explicit in production - wildcard is forbidden for security. Required for invite email callback URLs."
+    }
+  ],
+  "conditionallyRequired": [
+    {
+      "name": "ENCRYPTION_KEY",
+      "condition": "Required when the application stores or processes PII data that must be encrypted at rest (customerIdentifiers, internalIdentifiers, commercialSensitive data per scope-manifest dataSensitivity requirements)",
+      "usage": "AES-256-GCM encryption key for sensitive PII fields in sources and datasets tables",
+      "validation": "Must be exactly 32 bytes (64 hexadecimal characters)",
+      "validatedInFile": "server/lib/env.ts",
+      "usedInFiles": [
+        "server/lib/encryption.ts",
+        "server/services/source.service.ts",
+        "server/services/processing.service.ts"
+      ],
+      "whyRequired": "Compliance requirement (GDPR, SOC2) - sensitive data must be encrypted at rest before de-identification processing. Data classes include PII, customer identifiers, and commercial sensitive information per scope-manifest platformConstraints.dataSensitivity."
+    }
+  ],
+  "optional": [
+    {
+      "name": "PORT",
+      "default": "5000",
+      "usage": "Primary HTTP server listen port (externally-facing). Production: Express serves both SPA and API on this port (bound to 0.0.0.0). Development: When using dual-server setup (e.g., Vite + Express), PORT is the frontend dev server port (e.g., Vite on 5000) while the backend API runs on port 3001 (not controlled by PORT). Frontend proxies /api requests to backend."
+    },
+    {
+      "name": "LOG_LEVEL",
+      "default": "info",
+      "usage": "Logging verbosity level for application logging (debug, info, warn, error)"
+    },
+    {
+      "name": "MAX_FILE_SIZE_MB",
+      "default": "100",
+      "usage": "Maximum file upload size in megabytes (enforced at upload middleware)"
+    },
+    {
+      "name": "SOURCE_RETENTION_DAYS",
+      "default": "30",
+      "usage": "Number of days to retain cached source data before automatic purge (per scope-manifest retention policy)"
+    }
+  ]
+}

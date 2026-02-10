@@ -1,0 +1,1193 @@
+{
+  "$schema": "data-relationships-v2",
+  "tables": [
+    {
+      "name": "organisations",
+      "schemaFile": "server/db/schema/organisations.schema.ts",
+      "tenantKey": "container",
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "unique": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_orgs_slug_active",
+          "columns": ["slug"],
+          "type": "btree",
+          "unique": true,
+          "indexType": "partialUnique",
+          "where": "deletedAt IS NULL",
+          "rationale": "Partial unique: organisation slug must be unique among active (non-deleted) organisations only. Soft-deleted organisations release their slug for potential reuse."
+        },
+        {
+          "name": "idx_orgs_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for organisation queries"
+        }
+      ],
+      "serviceFile": "server/services/organisations.service.ts"
+    },
+    {
+      "name": "users",
+      "schemaFile": "server/db/schema/users.schema.ts",
+      "tenantKey": "direct",
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "organisationId",
+          "type": "uuid",
+          "references": "organisations.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "unique": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "passwordHash",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "role",
+          "type": "enum",
+          "values": ["admin", "member"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "user_role",
+            "options": {"notNull": true}
+          },
+          "typescriptMapping": {
+            "type": "UserRole",
+            "definition": "type UserRole = 'admin' | 'member'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "inviteToken",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "inviteTokenExpiry",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_users_email_active",
+          "columns": ["email"],
+          "type": "btree",
+          "unique": true,
+          "indexType": "partialUnique",
+          "where": "deletedAt IS NULL",
+          "rationale": "Partial unique: email must be unique among active (non-deleted) users only. Soft-deleted users release their email for re-registration."
+        },
+        {
+          "name": "idx_users_org_deleted",
+          "columns": ["organisationId", "deletedAt"],
+          "type": "btree",
+          "rationale": "Multi-tenant user listing with soft-delete filter. Supports queries like 'get all active users in organisation'."
+        },
+        {
+          "name": "idx_users_invite_token",
+          "columns": ["inviteToken"],
+          "type": "btree",
+          "rationale": "Lookup by invite token during registration flow"
+        },
+        {
+          "name": "idx_users_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for user queries"
+        }
+      ],
+      "serviceFile": "server/services/users.service.ts"
+    },
+    {
+      "name": "canonicalSchemas",
+      "schemaFile": "server/db/schema/canonicalSchemas.schema.ts",
+      "tenantKey": "none",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "unique": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "schemaDefinition",
+          "type": "json",
+          "drizzle": {
+            "columnType": "jsonb",
+            "options": {"notNull": true}
+          },
+          "jsonSchema": {
+            "type": "object",
+            "properties": {
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {"type": "string"},
+                    "type": {"type": "string", "enum": ["string", "number", "boolean", "timestamp", "array", "object"]},
+                    "required": {"type": "boolean"},
+                    "description": {"type": "string"}
+                  },
+                  "required": ["name", "type"]
+                }
+              },
+              "outputFormat": {"type": "string", "enum": ["conversationalJsonl", "qaJson", "structuredJson"]}
+            },
+            "required": ["fields", "outputFormat"]
+          }
+        },
+        {
+          "name": "schemaDefinitionVersion",
+          "type": "integer",
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"notNull": true, "default": 1}
+          },
+          "versionStrategy": {
+            "type": "auto-increment",
+            "incrementOn": ["UPDATE schemaDefinition"],
+            "implementation": "application-layer"
+          }
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "isPublished",
+          "type": "boolean",
+          "drizzle": {
+            "columnType": "boolean",
+            "options": {"notNull": true, "default": false}
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_canonical_schemas_name_version",
+          "columns": ["name", "version"],
+          "type": "btree",
+          "unique": true,
+          "rationale": "Versioned entity uniqueness: ensure each schema name + version combination is unique"
+        },
+        {
+          "name": "idx_canonical_schemas_published",
+          "columns": ["isPublished"],
+          "type": "btree",
+          "rationale": "Singleton flag index coverage: lookup index for published schemas"
+        }
+      ],
+      "serviceFile": "server/services/canonicalSchemas.service.ts"
+    },
+    {
+      "name": "projects",
+      "schemaFile": "server/db/schema/projects.schema.ts",
+      "tenantKey": "direct",
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "organisationId",
+          "type": "uuid",
+          "references": "organisations.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "createdByUserId",
+          "type": "uuid",
+          "references": "users.id",
+          "foreignKeyAction": {"onDelete": "SET NULL", "onUpdate": "CASCADE"},
+          "nullable": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {}
+          }
+        },
+        {
+          "name": "canonicalSchemaId",
+          "type": "uuid",
+          "references": "canonicalSchemas.id",
+          "foreignKeyAction": {"onDelete": "RESTRICT", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": ["draft", "active", "archived"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "project_status",
+            "options": {"notNull": true, "default": "'draft'"}
+          },
+          "typescriptMapping": {
+            "type": "ProjectStatus",
+            "definition": "type ProjectStatus = 'draft' | 'active' | 'archived'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "processingConfig",
+          "type": "json",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "jsonb",
+            "options": {}
+          },
+          "jsonSchema": {
+            "type": "object",
+            "properties": {
+              "deidentificationRules": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {"type": "string"},
+                    "action": {"type": "string", "enum": ["mask", "hash", "redact", "tokenise", "drop"]}
+                  }
+                }
+              },
+              "outputFormat": {"type": "string", "enum": ["conversationalJsonl", "qaJson", "structuredJson"]},
+              "maxRecords": {"type": "integer"}
+            }
+          }
+        },
+        {
+          "name": "processingConfigVersion",
+          "type": "integer",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"default": 1}
+          },
+          "versionStrategy": {
+            "type": "auto-increment",
+            "incrementOn": ["UPDATE processingConfig"],
+            "implementation": "application-layer"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_projects_org_name_active",
+          "columns": ["organisationId", "name"],
+          "type": "btree",
+          "unique": true,
+          "indexType": "partialUnique",
+          "where": "deletedAt IS NULL",
+          "rationale": "Partial unique: project name must be unique within organisation among active (non-deleted) projects only"
+        },
+        {
+          "name": "idx_projects_org_deleted",
+          "columns": ["organisationId", "deletedAt"],
+          "type": "btree",
+          "rationale": "Multi-tenant project listing with soft-delete filter"
+        },
+        {
+          "name": "idx_projects_status",
+          "columns": ["status", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup projects by status with soft-delete filter"
+        },
+        {
+          "name": "idx_projects_created_by",
+          "columns": ["createdByUserId"],
+          "type": "btree",
+          "rationale": "Audit lookup: projects created by specific user"
+        },
+        {
+          "name": "idx_projects_canonical_schema",
+          "columns": ["canonicalSchemaId"],
+          "type": "btree",
+          "rationale": "Lookup projects using specific canonical schema"
+        },
+        {
+          "name": "idx_projects_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for project queries"
+        }
+      ],
+      "serviceFile": "server/services/projects.service.ts"
+    },
+    {
+      "name": "sources",
+      "schemaFile": "server/db/schema/sources.schema.ts",
+      "tenantKey": "indirect",
+      "projectScopeStrategy": "joinPath",
+      "joinPath": [
+        {"table": "sources", "joinColumn": "projectId"},
+        {"table": "projects", "joinColumn": "organisationId"}
+      ],
+      "requiredFiltering": [
+        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+      ],
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "projectId",
+          "type": "uuid",
+          "references": "projects.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "sourceType",
+          "type": "enum",
+          "values": ["file", "api"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "source_type",
+            "options": {"notNull": true}
+          },
+          "typescriptMapping": {
+            "type": "SourceType",
+            "definition": "type SourceType = 'file' | 'api'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "fileUploadPath",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "fileMimeType",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "fileSizeBytes",
+          "type": "bigint",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "bigint",
+            "options": {}
+          }
+        },
+        {
+          "name": "apiConnectionConfig",
+          "type": "json",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "jsonb",
+            "options": {}
+          },
+          "jsonSchema": {
+            "type": "object",
+            "properties": {
+              "endpoint": {"type": "string"},
+              "authType": {"type": "string", "enum": ["none", "apiKey", "oauth"]},
+              "credentials": {"type": "object"}
+            }
+          }
+        },
+        {
+          "name": "apiConnectionConfigVersion",
+          "type": "integer",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"default": 1}
+          },
+          "versionStrategy": {
+            "type": "auto-increment",
+            "incrementOn": ["UPDATE apiConnectionConfig"],
+            "implementation": "application-layer"
+          }
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": ["connected", "cached", "expired", "error"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "source_status",
+            "options": {"notNull": true, "default": "'connected'"}
+          },
+          "typescriptMapping": {
+            "type": "SourceStatus",
+            "definition": "type SourceStatus = 'connected' | 'cached' | 'expired' | 'error'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "cachedDataPath",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "cachedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        },
+        {
+          "name": "cacheExpiryDate",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        },
+        {
+          "name": "recordCount",
+          "type": "integer",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "integer",
+            "options": {}
+          }
+        },
+        {
+          "name": "errorMessage",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_sources_project",
+          "columns": ["projectId", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup sources by project with soft-delete filter"
+        },
+        {
+          "name": "idx_sources_status",
+          "columns": ["status", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup sources by status with soft-delete filter"
+        },
+        {
+          "name": "idx_sources_cache_expiry",
+          "columns": ["cacheExpiryDate"],
+          "type": "btree",
+          "rationale": "Timestamp column indexing: used for cache cleanup queries to find expired sources"
+        },
+        {
+          "name": "idx_sources_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for source queries"
+        }
+      ],
+      "serviceFile": "server/services/sources.service.ts"
+    },
+    {
+      "name": "processingJobs",
+      "schemaFile": "server/db/schema/processingJobs.schema.ts",
+      "tenantKey": "indirect",
+      "projectScopeStrategy": "joinPath",
+      "joinPath": [
+        {"table": "processingJobs", "joinColumn": "projectId"},
+        {"table": "projects", "joinColumn": "organisationId"}
+      ],
+      "requiredFiltering": [
+        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+      ],
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "projectId",
+          "type": "uuid",
+          "references": "projects.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "triggeredBy",
+          "type": "enum",
+          "values": ["manual", "scheduled"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "job_trigger",
+            "options": {"notNull": true}
+          },
+          "typescriptMapping": {
+            "type": "JobTrigger",
+            "definition": "type JobTrigger = 'manual' | 'scheduled'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "triggeredByUserId",
+          "type": "uuid",
+          "references": "users.id",
+          "foreignKeyAction": {"onDelete": "SET NULL", "onUpdate": "CASCADE"},
+          "nullable": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {}
+          }
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": ["queued", "processing", "completed", "failed"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "processing_job_status",
+            "options": {"notNull": true, "default": "'queued'"}
+          },
+          "typescriptMapping": {
+            "type": "ProcessingJobStatus",
+            "definition": "type ProcessingJobStatus = 'queued' | 'processing' | 'completed' | 'failed'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "configSnapshot",
+          "type": "json",
+          "drizzle": {
+            "columnType": "jsonb",
+            "options": {"notNull": true}
+          },
+          "jsonSchema": {
+            "type": "object",
+            "properties": {
+              "projectConfig": {"type": "object"},
+              "sourceIds": {"type": "array", "items": {"type": "string"}},
+              "deidentificationRules": {"type": "array"},
+              "canonicalSchemaVersion": {"type": "integer"}
+            },
+            "required": ["projectConfig", "sourceIds"]
+          }
+        },
+        {
+          "name": "configSnapshotVersion",
+          "type": "integer",
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"notNull": true, "default": 1}
+          },
+          "versionStrategy": {
+            "type": "auto-increment",
+            "incrementOn": ["UPDATE configSnapshot"],
+            "implementation": "application-layer"
+          }
+        },
+        {
+          "name": "inputRecordCount",
+          "type": "integer",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "integer",
+            "options": {}
+          }
+        },
+        {
+          "name": "outputRecordCount",
+          "type": "integer",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "integer",
+            "options": {}
+          }
+        },
+        {
+          "name": "errorMessage",
+          "type": "string",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "text",
+            "options": {}
+          }
+        },
+        {
+          "name": "startedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        },
+        {
+          "name": "completedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_processing_jobs_project",
+          "columns": ["projectId", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup jobs by project with soft-delete filter"
+        },
+        {
+          "name": "idx_processing_jobs_status",
+          "columns": ["status", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup jobs by status with soft-delete filter for job queue management"
+        },
+        {
+          "name": "idx_processing_jobs_triggered_by",
+          "columns": ["triggeredByUserId"],
+          "type": "btree",
+          "rationale": "Audit lookup: jobs triggered by specific user"
+        },
+        {
+          "name": "idx_processing_jobs_created_at",
+          "columns": ["createdAt"],
+          "type": "btree",
+          "rationale": "Timestamp column indexing: used for job history queries ordered by creation time"
+        },
+        {
+          "name": "idx_processing_jobs_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for job queries"
+        }
+      ],
+      "serviceFile": "server/services/processingJobs.service.ts"
+    },
+    {
+      "name": "datasets",
+      "schemaFile": "server/db/schema/datasets.schema.ts",
+      "tenantKey": "indirect",
+      "projectScopeStrategy": "joinPath",
+      "joinPath": [
+        {"table": "datasets", "joinColumn": "projectId"},
+        {"table": "projects", "joinColumn": "organisationId"}
+      ],
+      "requiredFiltering": [
+        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+      ],
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "softDeletePrimary",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "primary": true,
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"primaryKey": true, "defaultRandom": true}
+          }
+        },
+        {
+          "name": "projectId",
+          "type": "uuid",
+          "references": "projects.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "processingJobId",
+          "type": "uuid",
+          "references": "processingJobs.id",
+          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "drizzle": {
+            "columnType": "uuid",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "outputFormat",
+          "type": "enum",
+          "values": ["conversationalJsonl", "qaJson", "structuredJson"],
+          "drizzle": {
+            "columnType": "pgEnum",
+            "enumName": "output_format",
+            "options": {"notNull": true}
+          },
+          "typescriptMapping": {
+            "type": "OutputFormat",
+            "definition": "type OutputFormat = 'conversationalJsonl' | 'qaJson' | 'structuredJson'",
+            "export": true,
+            "clientAvailable": true
+          }
+        },
+        {
+          "name": "outputStoragePath",
+          "type": "string",
+          "drizzle": {
+            "columnType": "text",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "recordCount",
+          "type": "integer",
+          "drizzle": {
+            "columnType": "integer",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "fileSizeBytes",
+          "type": "bigint",
+          "drizzle": {
+            "columnType": "bigint",
+            "options": {"notNull": true}
+          }
+        },
+        {
+          "name": "lineageData",
+          "type": "json",
+          "drizzle": {
+            "columnType": "jsonb",
+            "options": {"notNull": true}
+          },
+          "jsonSchema": {
+            "type": "object",
+            "properties": {
+              "sourceIds": {"type": "array", "items": {"type": "string"}},
+              "transformations": {"type": "array", "items": {"type": "string"}},
+              "deidentificationApplied": {"type": "boolean"},
+              "processingTimestamp": {"type": "string", "format": "date-time"}
+            },
+            "required": ["sourceIds", "transformations"]
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {"mode": "date"}
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_datasets_project",
+          "columns": ["projectId", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup datasets by project with soft-delete filter"
+        },
+        {
+          "name": "idx_datasets_processing_job",
+          "columns": ["processingJobId"],
+          "type": "btree",
+          "rationale": "Lookup datasets produced by specific processing job"
+        },
+        {
+          "name": "idx_datasets_output_format",
+          "columns": ["outputFormat", "deletedAt"],
+          "type": "btree",
+          "rationale": "Lookup datasets by output format with soft-delete filter"
+        },
+        {
+          "name": "idx_datasets_created_at",
+          "columns": ["createdAt"],
+          "type": "btree",
+          "rationale": "Timestamp column indexing: used for dataset history queries ordered by creation time"
+        },
+        {
+          "name": "idx_datasets_deleted_at",
+          "columns": ["deletedAt"],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for dataset queries"
+        }
+      ],
+      "serviceFile": "server/services/datasets.service.ts"
+    }
+  ],
+  "softDeleteCascades": [
+    {
+      "parentEntity": "organisations",
+      "cascadeTargets": [
+        {"table": "users", "foreignKey": "organisationId"},
+        {"table": "projects", "foreignKey": "organisationId"}
+      ],
+      "executionOrder": 1,
+      "cascadeSemantics": "softDeletePrimary",
+      "note": "Organisation soft-delete cascades to all direct tenant-scoped children. Indirect descendants (sources, processingJobs, datasets) cascade through projects (order 2)."
+    },
+    {
+      "parentEntity": "projects",
+      "cascadeTargets": [
+        {"table": "sources", "foreignKey": "projectId"},
+        {"table": "processingJobs", "foreignKey": "projectId"},
+        {"table": "datasets", "foreignKey": "projectId"}
+      ],
+      "executionOrder": 2,
+      "cascadeSemantics": "softDeletePrimary",
+      "note": "Requires organisations cascade (order 1) to complete before indirect descendants are reachable. Project soft-delete cascades to all child entities maintaining data lineage."
+    }
+  ],
+  "nonCascadingForeignKeys": [
+    {
+      "table": "projects",
+      "column": "createdByUserId",
+      "references": "users.id",
+      "reason": "Nullable audit column. Orphaned records are acceptable when the referenced user is soft-deleted. Creator attribution preserved for historical record even if user no longer exists."
+    },
+    {
+      "table": "processingJobs",
+      "column": "triggeredByUserId",
+      "references": "users.id",
+      "reason": "Nullable audit column. Orphaned records are acceptable when the referenced user is soft-deleted. Trigger source preserved for job history even if user no longer exists."
+    },
+    {
+      "table": "projects",
+      "column": "canonicalSchemaId",
+      "references": "canonicalSchemas.id",
+      "reason": "Platform-level resource with no tenant isolation (tenantKey: none). Canonical schemas are shared across all organisations and should not cascade when projects are deleted. FK uses RESTRICT to prevent accidental schema deletion while projects reference it."
+    }
+  ]
+}
