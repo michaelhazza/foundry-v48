@@ -1,0 +1,874 @@
+{
+  "$schema": "ui-api-deps-v2",
+  "totalPages": 20,
+  "canonicalPaths": {
+    "apiClient": "client/src/lib/api.ts",
+    "errorBoundary": "client/src/lib/ErrorBoundary.tsx",
+    "appComponent": "client/src/App.tsx"
+  },
+  "routingConfig": {
+    "library": "react-router-dom",
+    "version": "6",
+    "protectedRoutes": {
+      "wrapper": "RequireAuth",
+      "redirectTo": "/login",
+      "redirectParam": "returnTo"
+    }
+  },
+  "pages": [
+    {
+      "filePath": "client/src/pages/LoginPage.tsx",
+      "routePath": "/login",
+      "scope": "required",
+      "authenticated": false,
+      "layoutSpec": {
+        "type": "form-only",
+        "form": {
+          "placement": "dedicated-page",
+          "fields": [
+            {
+              "name": "email",
+              "type": "email",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "password",
+              "required": true
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "POST",
+          "path": "/api/auth/login",
+          "required": true,
+          "authRequired": false,
+          "notes": "Authenticate user and return JWT token"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/RegisterPage.tsx",
+      "routePath": "/register",
+      "scope": "required",
+      "authenticated": false,
+      "layoutSpec": {
+        "type": "form-only",
+        "form": {
+          "placement": "dedicated-page",
+          "fields": [
+            {
+              "name": "email",
+              "type": "email",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "password",
+              "required": true
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "inviteToken",
+              "type": "text",
+              "required": true
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "POST",
+          "path": "/api/auth/register",
+          "required": true,
+          "authRequired": false,
+          "notes": "Create new user account with invite token validation"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/DashboardPage.tsx",
+      "routePath": "/dashboard",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "dashboard",
+        "sections": [
+          "recent-projects",
+          "recent-datasets",
+          "processing-status"
+        ]
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/auth/session",
+          "required": true,
+          "authRequired": true,
+          "notes": "Load current user information for dashboard"
+        },
+        {
+          "method": "GET",
+          "path": "/api/projects",
+          "required": true,
+          "authRequired": true,
+          "queryParams": [
+            "limit=5",
+            "sort=updatedAt:desc"
+          ],
+          "notes": "Recent projects for dashboard overview"
+        },
+        {
+          "method": "GET",
+          "path": "/api/datasets",
+          "required": true,
+          "authRequired": true,
+          "queryParams": [
+            "limit=5",
+            "sort=createdAt:desc"
+          ],
+          "notes": "Recent datasets for dashboard overview"
+        },
+        {
+          "method": "GET",
+          "path": "/api/processing-jobs",
+          "required": true,
+          "authRequired": true,
+          "queryParams": [
+            "status=processing,queued",
+            "limit=10"
+          ],
+          "notes": "Active processing jobs for status monitoring"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/SettingsPage.tsx",
+      "routePath": "/settings",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "form",
+        "form": {
+          "placement": "settings-page",
+          "fields": [
+            {
+              "name": "name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "email",
+              "type": "email",
+              "required": true,
+              "readonly": true
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/auth/session",
+          "required": true,
+          "authRequired": true,
+          "notes": "Load current user profile information"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/OrganisationSettingsPage.tsx",
+      "routePath": "/organisation/settings",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "form",
+        "form": {
+          "placement": "settings-page",
+          "fields": [
+            {
+              "name": "name",
+              "type": "text",
+              "required": true
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/organisations/me",
+          "required": true,
+          "authRequired": true,
+          "notes": "Load current organisation details"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/organisations/me",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "notes": "Update organisation settings - admin only"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/UsersPage.tsx",
+      "routePath": "/admin/users",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "email",
+            "role",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/users",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all users in organisation"
+        },
+        {
+          "method": "GET",
+          "path": "/api/users/:id",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in users table"
+          },
+          "notes": "View user details from selected row"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/users/:id",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "paramSource": {
+            "id": "selected row in users table"
+          },
+          "notes": "Admin-only user management"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/users/:id",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "paramSource": {
+            "id": "selected row in users table"
+          },
+          "notes": "Admin-only user deletion"
+        },
+        {
+          "method": "POST",
+          "path": "/api/users/invite",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "notes": "Admin-only user invitation"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProjectsPage.tsx",
+      "routePath": "/projects",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "status",
+            "canonicalSchema",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete",
+            "create"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/projects",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all projects in organisation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/projects/:id",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in projects table"
+          },
+          "notes": "Delete project from table action"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/NewProjectPage.tsx",
+      "routePath": "/projects/new",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "form",
+        "form": {
+          "placement": "dedicated-page",
+          "fields": [
+            {
+              "name": "name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "description",
+              "type": "textarea",
+              "required": false
+            },
+            {
+              "name": "canonicalSchemaId",
+              "type": "select",
+              "required": true
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/canonical-schemas",
+          "required": true,
+          "authRequired": true,
+          "notes": "Load available schemas for project creation dropdown"
+        },
+        {
+          "method": "POST",
+          "path": "/api/projects",
+          "required": true,
+          "authRequired": true,
+          "notes": "Create new project"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProjectDetailPage.tsx",
+      "routePath": "/projects/:id",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "detail-with-tabs",
+        "tabs": [
+          "overview",
+          "sources",
+          "processing",
+          "datasets"
+        ]
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/projects/:id",
+          "required": true,
+          "authRequired": true,
+          "pathParamMap": {
+            "id": "projectId"
+          },
+          "notes": "Load project details - route param :projectId maps to API param :id"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/projects/:id",
+          "required": true,
+          "authRequired": true,
+          "pathParamMap": {
+            "id": "projectId"
+          },
+          "notes": "Update project details"
+        },
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/sources",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "Load sources for this project - uses consistent :projectId parameter"
+        },
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/processing-jobs",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "Load processing jobs for this project"
+        },
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/datasets",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "Load datasets for this project"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/SourcesPage.tsx",
+      "routePath": "/sources",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "type",
+            "status",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete",
+            "create"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/sources",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all sources in organisation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/sources/:id",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in sources table"
+          },
+          "notes": "Delete source from table action"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/NewSourcePage.tsx",
+      "routePath": "/sources/new",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "form",
+        "form": {
+          "placement": "dedicated-page",
+          "fields": [
+            {
+              "name": "name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "type",
+              "type": "select",
+              "required": true,
+              "options": [
+                "file",
+                "api"
+              ]
+            },
+            {
+              "name": "file",
+              "type": "file",
+              "required": false,
+              "conditional": "type === 'file'"
+            },
+            {
+              "name": "connectionConfig",
+              "type": "json",
+              "required": false,
+              "conditional": "type === 'api'"
+            }
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "POST",
+          "path": "/api/sources",
+          "required": true,
+          "authRequired": true,
+          "notes": "Create new source with file upload capability"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProjectSourcesPage.tsx",
+      "routePath": "/projects/:projectId/sources",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "type",
+            "status",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "remove"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/sources",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "List sources for specific project - uses consistent :projectId parameter"
+        },
+        {
+          "method": "GET",
+          "path": "/api/sources/:id",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in sources table"
+          },
+          "notes": "View source details"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProcessingJobsPage.tsx",
+      "routePath": "/processing-jobs",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "projectName",
+            "status",
+            "startedAt",
+            "completedAt"
+          ],
+          "actions": [
+            "view",
+            "retry"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/processing-jobs",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all processing jobs in organisation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/processing-jobs/:id/retry",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in jobs table"
+          },
+          "notes": "Retry failed processing job"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProcessingJobDetailPage.tsx",
+      "routePath": "/processing-jobs/:id",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "detail-view",
+        "sections": [
+          "status",
+          "configuration",
+          "logs",
+          "output"
+        ]
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/processing-jobs/:id",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.id",
+          "notes": "Load processing job details"
+        },
+        {
+          "method": "POST",
+          "path": "/api/processing-jobs/:id/retry",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.id",
+          "notes": "Retry failed job from detail page"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProjectProcessingJobsPage.tsx",
+      "routePath": "/projects/:projectId/processing-jobs",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "status",
+            "startedAt",
+            "completedAt",
+            "recordsProcessed"
+          ],
+          "actions": [
+            "view",
+            "retry",
+            "create"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/processing-jobs",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "List processing jobs for specific project - uses consistent :projectId parameter"
+        },
+        {
+          "method": "POST",
+          "path": "/api/processing-jobs",
+          "required": true,
+          "authRequired": true,
+          "notes": "Create new processing job for this project"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/DatasetsPage.tsx",
+      "routePath": "/datasets",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "projectName",
+            "format",
+            "size",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "download",
+            "delete"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/datasets",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all datasets in organisation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/datasets/:id",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in datasets table"
+          },
+          "notes": "Delete dataset from table action"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/DatasetDetailPage.tsx",
+      "routePath": "/datasets/:id",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "detail-view",
+        "sections": [
+          "metadata",
+          "lineage",
+          "preview",
+          "download"
+        ]
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/datasets/:id",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.id",
+          "notes": "Load dataset details and metadata"
+        },
+        {
+          "method": "GET",
+          "path": "/api/datasets/:id/download",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.id",
+          "notes": "Download dataset file"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/ProjectDatasetsPage.tsx",
+      "routePath": "/projects/:projectId/datasets",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "format",
+            "size",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "download",
+            "delete"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/projects/:projectId/datasets",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.projectId",
+          "notes": "List datasets for specific project - uses consistent :projectId parameter"
+        },
+        {
+          "method": "GET",
+          "path": "/api/datasets/:id/download",
+          "required": true,
+          "authRequired": true,
+          "paramSource": {
+            "id": "selected row in datasets table"
+          },
+          "notes": "Download dataset from table action"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/CanonicalSchemasPage.tsx",
+      "routePath": "/canonical-schemas",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "table-with-actions",
+        "table": {
+          "columns": [
+            "name",
+            "version",
+            "fieldCount",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "create"
+          ]
+        }
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/canonical-schemas",
+          "required": true,
+          "authRequired": true,
+          "notes": "List all canonical schemas"
+        },
+        {
+          "method": "POST",
+          "path": "/api/canonical-schemas",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "notes": "Create new canonical schema - admin only"
+        }
+      ]
+    },
+    {
+      "filePath": "client/src/pages/CanonicalSchemaDetailPage.tsx",
+      "routePath": "/canonical-schemas/:id",
+      "scope": "required",
+      "authenticated": true,
+      "layoutSpec": {
+        "type": "detail-view",
+        "sections": [
+          "schema-definition",
+          "field-mappings",
+          "usage"
+        ]
+      },
+      "apiCalls": [
+        {
+          "method": "GET",
+          "path": "/api/canonical-schemas/:id",
+          "required": true,
+          "authRequired": true,
+          "dependsOn": "route.params.id",
+          "notes": "Load canonical schema details"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/canonical-schemas/:id",
+          "required": true,
+          "authRequired": true,
+          "requiredRole": "admin",
+          "dependsOn": "route.params.id",
+          "notes": "Update canonical schema - admin only"
+        }
+      ]
+    }
+  ]
+}

@@ -1,17 +1,16 @@
 {
   "$schema": "build-gate-results-v1",
-  "timestamp": "",
+  "timestamp": "2026-02-10T12:04:27Z",
   "summary": {
-    "total": 0,
-    "passed": 0,
-    "failed": 0,
-    "blocking": 0,
+    "total": 33,
+    "passed": 28,
+    "failed": 5,
+    "blocking": 5,
     "warnings": 0,
     "informational": 0
   },
-  "results": [],
   "conclusion": {
-    "buildStatus": "pending",
+    "buildStatus": "failed",
     "deployable": false
   }
 }
