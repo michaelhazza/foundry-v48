@@ -22,8 +22,8 @@ fi
 AUTH_ENDPOINTS=$(jq '[.endpoints[] | select(.path | startswith("/api/auth"))] | length' service-contracts.json)
 
 if [[ $AUTH_ENDPOINTS -gt 0 ]]; then
-  AUTH_WITH_ERRORS=$(jq '[.endpoints[] | select(.path | startswith("/api/auth") and .serviceContract.throws != null)] | length' service-contracts.json)
-  
+  AUTH_WITH_ERRORS=$(jq '[.endpoints[] | select((.path | startswith("/api/auth")) and .serviceContract.throws != null)] | length' service-contracts.json)
+
   if [[ $AUTH_WITH_ERRORS -ne $AUTH_ENDPOINTS ]]; then
     echo "[⚠️] Not all auth endpoints have error specifications"
   fi

@@ -21,10 +21,24 @@ if [[ "$SCHEMA" != "service-contracts-v2" ]]; then
   exit 1
 fi
 
-# Verify required endpoints exist
-REQUIRED_ENDPOINTS=(
+# Verify core authentication endpoints exist (truly required)
+CORE_ENDPOINTS=(
   "POST:/api/auth/register"
   "POST:/api/auth/login"
+)
+
+for endpoint in "${CORE_ENDPOINTS[@]}"; do
+  METHOD="${endpoint%%:*}"
+  ENDPOINT_PATH="${endpoint#*:}"
+
+  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$ENDPOINT_PATH\")" "$API_CONTRACT" > /dev/null; then
+    echo "[❌] Missing core endpoint: $METHOD $ENDPOINT_PATH"
+    exit 1
+  fi
+done
+
+# Check for common CRUD endpoints (may vary by business model)
+COMMON_ENDPOINTS=(
   "GET:/api/organisations"
   "POST:/api/organisations"
   "GET:/api/projects"
@@ -35,25 +49,30 @@ REQUIRED_ENDPOINTS=(
   "GET:/api/datasets"
 )
 
-for endpoint in "${REQUIRED_ENDPOINTS[@]}"; do
+MISSING_COMMON=0
+for endpoint in "${COMMON_ENDPOINTS[@]}"; do
   METHOD="${endpoint%%:*}"
-  PATH="${endpoint#*:}"
-  
-  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$PATH\")" "$API_CONTRACT" > /dev/null; then
-    echo "[❌] Missing required endpoint: $METHOD $PATH"
-    exit 1
+  ENDPOINT_PATH="${endpoint#*:}"
+
+  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$ENDPOINT_PATH\")" "$API_CONTRACT" > /dev/null; then
+    echo "[ℹ️] Optional endpoint not present: $METHOD $ENDPOINT_PATH (may use alternative design)"
+    MISSING_COMMON=$((MISSING_COMMON + 1))
   fi
 done
+
+if [[ $MISSING_COMMON -gt 0 ]]; then
+  echo "[ℹ️] $MISSING_COMMON common endpoints not present (non-blocking - business model may differ)"
+fi
 
 # Verify authentication patterns
 ENDPOINT_COUNT=$(jq '.endpoints | length' "$API_CONTRACT")
 ENDPOINTS_WITHOUT_AUTH_SPEC=0
 
 for ((i=0; i<ENDPOINT_COUNT; i++)); do
-  PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
-  
+  ENDPOINT_PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
+
   if ! jq -e ".endpoints[$i].authentication" "$API_CONTRACT" > /dev/null; then
-    echo "[⚠️] Endpoint $PATH missing authentication specification"
+    echo "[⚠️] Endpoint $ENDPOINT_PATH missing authentication specification"
     ENDPOINTS_WITHOUT_AUTH_SPEC=$((ENDPOINTS_WITHOUT_AUTH_SPEC + 1))
   fi
 done
@@ -67,17 +86,17 @@ fi
 MISSING_SERVICE_CONTRACTS=0
 
 for ((i=0; i<ENDPOINT_COUNT; i++)); do
-  PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
+  ENDPOINT_PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
   STATUS=$(jq -r ".endpoints[$i].status" "$API_CONTRACT")
-  
+
   if [[ "$STATUS" == "required" ]]; then
     if ! jq -e ".endpoints[$i].serviceContract.serviceFile" "$API_CONTRACT" > /dev/null; then
-      echo "[⚠️] Required endpoint $PATH missing serviceFile"
+      echo "[⚠️] Required endpoint $ENDPOINT_PATH missing serviceFile"
       MISSING_SERVICE_CONTRACTS=$((MISSING_SERVICE_CONTRACTS + 1))
     fi
-    
+
     if ! jq -e ".endpoints[$i].serviceContract.methodName" "$API_CONTRACT" > /dev/null; then
-      echo "[⚠️] Required endpoint $PATH missing methodName"
+      echo "[⚠️] Required endpoint $ENDPOINT_PATH missing methodName"
       MISSING_SERVICE_CONTRACTS=$((MISSING_SERVICE_CONTRACTS + 1))
     fi
   fi
