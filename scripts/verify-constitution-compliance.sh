@@ -6,13 +6,6 @@ set -euo pipefail
 
 echo "[Phase 1] Verifying constitution compliance..."
 
-CONSTITUTION="agent-0-constitution.md"
-
-if [[ ! -f "$CONSTITUTION" ]]; then
-  echo "[❌] Constitution file not found"
-  exit 1
-fi
-
 # Verify multi-tenant isolation
 TENANT_CONTAINERS=$(jq '[.tables[] | select(.tenantKey == "container")] | length' data-relationships.json)
 

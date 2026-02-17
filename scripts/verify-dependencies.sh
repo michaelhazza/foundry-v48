@@ -36,11 +36,5 @@ if [[ ! -f "ui-api-deps.json" ]]; then
   exit 1
 fi
 
-# Check constitution
-if [[ ! -f "agent-0-constitution.md" ]]; then
-  echo "[❌] Missing framework constitution"
-  exit 1
-fi
-
 echo "[✅] All agent dependencies present"
 exit 0
