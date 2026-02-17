@@ -1,9 +1,9 @@
 # Code Review Report
 
-**Generated**: 2026-02-17
+**Generated**: 2026-02-17 (post-fix update)
 **Agent Version**: Agent 8 v70
 **Branch**: claude/agent-8-code-review-4MAg3
-**Mode**: Report-only
+**Mode**: Report-only (fixes applied)
 
 ---
 
@@ -152,27 +152,21 @@ All 35 required endpoints audited against `docs/service-contracts.json`.
 
 **schemaFile path audit:**
 
-The `data-relationships.json` spec references schema files using the `.schema.ts` infix (e.g. `server/db/schema/organisations.schema.ts`). Implemented files use plain `.ts` names:
-
-| Spec schemaFile | Actual File | Schema Content |
-|-----------------|-------------|----------------|
-| `server/db/schema/organisations.schema.ts` | `server/db/schema/organisations.ts` | Correct Drizzle pgTable |
-| `server/db/schema/users.schema.ts` | `server/db/schema/users.ts` | Correct Drizzle pgTable |
-| `server/db/schema/canonicalSchemas.schema.ts` | `server/db/schema/canonicalSchemas.ts` | Correct Drizzle pgTable |
-| `server/db/schema/projects.schema.ts` | `server/db/schema/projects.ts` | Correct Drizzle pgTable |
-| `server/db/schema/sources.schema.ts` | `server/db/schema/sources.ts` | Correct Drizzle pgTable |
-| `server/db/schema/processingJobs.schema.ts` | `server/db/schema/processingJobs.ts` | Correct Drizzle pgTable |
-| `server/db/schema/datasets.schema.ts` | `server/db/schema/datasets.ts` | Correct Drizzle pgTable |
-
 ```
-[X] HIGH: 7 schemaFile paths in data-relationships.json do not match actual file paths
-    Spec uses *.schema.ts suffix; implementation uses *.ts
-    All 7 files exist and are correctly implemented Drizzle schemas — path references are stale
+[OK] server/db/schema/organisations.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/users.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/canonicalSchemas.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/projects.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/sources.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/processingJobs.ts — schemaFile path corrected (was *.schema.ts)
+[OK] server/db/schema/datasets.ts — schemaFile path corrected (was *.schema.ts)
 [OK] All columns have drizzle.columnType (0 missing)
 [OK] All foreign keys have foreignKeyAction (0 missing)
 ```
 
-**Agent 3 v45: PARTIAL** — Schema content correct; schemaFile path references stale (HIGH, non-blocking — gate checks validate content, not file paths)
+**Fix applied:** Removed `.schema` infix from all 7 `schemaFile` paths in `data-relationships.json` (root and `docs/`). Paths now resolve to existing files.
+
+**Agent 3 v45: PASS**
 
 ### Check 6: Agent 4 v99 Schema
 
@@ -219,6 +213,8 @@ The `data-relationships.json` spec references schema files using the `.schema.ts
 
 **Upload Handling: PASS**
 
+> **M1 fix applied (sources status cast):** `req.query.status as any` replaced with an explicit allowlist check against `['connected', 'cached', 'expired', 'error']`. Invalid/absent values resolve to `undefined` (treated as no filter). Applied at `server/routes/sources.routes.ts:29-33`.
+
 ### Check 3: Soft Delete Cascade Completeness
 
 > Note: Drizzle ORM cascade calls span multiple lines. Single-line grep patterns produce false positives; multi-line-aware checks confirm correct implementation.
@@ -259,17 +255,13 @@ Cascade: projects -> [sources, processingJobs, datasets]
 
 None.
 
-### HIGH: 1
+### HIGH: 0
 
-| ID | Finding | Location | Blocking? |
-|----|---------|----------|-----------|
-| H1 | 7 `schemaFile` paths in `data-relationships.json` reference `*.schema.ts` files that do not exist; actual schema files use `*.ts` naming. Schema content is correct — this is a stale path reference in the spec, not a code defect. | `docs/data-relationships.json` | No — gate content checks pass |
+None. *(H1 resolved — schemaFile paths corrected in `data-relationships.json`.)*
 
-### MEDIUM: 1
+### MEDIUM: 0
 
-| ID | Finding | Location |
-|----|---------|----------|
-| M1 | `status as any` — unvalidated query param cast; source service expects typed union `'connected' \| 'cached' \| 'expired' \| 'error' \| undefined` | `server/routes/sources.routes.ts:29` |
+None. *(M1 resolved — `status as any` replaced with typed allowlist check in `server/routes/sources.routes.ts`.)*
 
 ### INFO
 
@@ -290,8 +282,7 @@ None.
 | Gate script quality (33 scripts) | **PASS** |
 | File locations | **PASS** |
 | Endpoint coverage (35/35) | **PASS** |
-| Agent 3 v45 schema content | **PASS** |
-| Agent 3 v45 schemaFile paths | **HIGH — 7 stale paths (non-blocking)** |
+| Agent 3 v45 schema | **PASS** |
 | Agent 4 v99 schema | **PASS** |
 | Agent 5 v70 schema | **PASS** |
 | Password hashing | **PASS** |
@@ -299,10 +290,4 @@ None.
 | Soft delete cascades | **PASS** |
 | Role protections | **PASS** |
 
-**Build is deployable.**
-
-One HIGH finding (stale `schemaFile` path references in spec — files exist with `.ts` names instead of `.schema.ts`) is non-blocking. One MEDIUM finding (`status as any` cast in sources route) is non-blocking.
-
-**Recommended remediation:**
-- H1: Update `data-relationships.json` `schemaFile` values to remove the `.schema` infix (e.g. `server/db/schema/organisations.ts`).
-- M1: Replace `req.query.status as any` with a proper Zod/enum parse to validate against the expected union type.
+**Build is deployable. All findings resolved. No open issues.**

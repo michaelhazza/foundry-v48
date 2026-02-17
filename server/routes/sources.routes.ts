@@ -26,7 +26,12 @@ router.get('/', authenticate, async (req: any, res, next) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
     const projectId = req.query.projectId as string | undefined;
-    const status = req.query.status as any;
+    const STATUS_VALUES = ['connected', 'cached', 'expired', 'error'] as const;
+    type SourceStatus = typeof STATUS_VALUES[number];
+    const rawStatus = req.query.status as string | undefined;
+    const status: SourceStatus | undefined = STATUS_VALUES.includes(rawStatus as SourceStatus)
+      ? (rawStatus as SourceStatus)
+      : undefined;
     const sources = await sourcesService.listSources(
       req.user.organisationId,
       projectId,
