@@ -34,7 +34,7 @@ app.use(errorHandler);
 
 // Start server
 const PORT = env.NODE_ENV === 'production' ? parseInt(env.PORT) : 3001;
-const HOST = env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
   console.log(`✅ Server running on ${HOST}:${PORT}`);

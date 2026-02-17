@@ -25,16 +25,25 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Request failed');
+      let errorMessage = 'Request failed';
+      try {
+        const error = await response.json();
+        errorMessage = error.error?.message || errorMessage;
+      } catch {
+        errorMessage = `Server error (${response.status})`;
+      }
+      throw new Error(errorMessage);
     }
 
-    // Handle 204 No Content
     if (response.status === 204) {
       return {} as T;
     }
 
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      return {} as T;
+    }
+    return JSON.parse(text);
   }
 
   async get<T>(endpoint: string): Promise<T> {
