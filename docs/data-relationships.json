@@ -3,7 +3,7 @@
   "tables": [
     {
       "name": "organisations",
-      "schemaFile": "server/db/schema/organisations.schema.ts",
+      "schemaFile": "server/db/schema/organisations.ts",
       "tenantKey": "container",
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -14,7 +14,10 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
@@ -22,7 +25,9 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -31,7 +36,9 @@
           "unique": true,
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -39,7 +46,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -47,7 +58,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -56,14 +71,18 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_orgs_slug_active",
-          "columns": ["slug"],
+          "columns": [
+            "slug"
+          ],
           "type": "btree",
           "unique": true,
           "indexType": "partialUnique",
@@ -72,7 +91,9 @@
         },
         {
           "name": "idx_orgs_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for organisation queries"
         }
@@ -81,7 +102,7 @@
     },
     {
       "name": "users",
-      "schemaFile": "server/db/schema/users.schema.ts",
+      "schemaFile": "server/db/schema/users.ts",
       "tenantKey": "direct",
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -92,17 +113,25 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
           "name": "organisationId",
           "type": "uuid",
           "references": "organisations.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -111,7 +140,9 @@
           "unique": true,
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -119,7 +150,9 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -127,17 +160,24 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "role",
           "type": "enum",
-          "values": ["admin", "member"],
+          "values": [
+            "admin",
+            "member"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "user_role",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "typescriptMapping": {
             "type": "UserRole",
@@ -161,7 +201,9 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         },
         {
@@ -169,7 +211,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -177,7 +223,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -186,14 +236,18 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_users_email_active",
-          "columns": ["email"],
+          "columns": [
+            "email"
+          ],
           "type": "btree",
           "unique": true,
           "indexType": "partialUnique",
@@ -202,19 +256,26 @@
         },
         {
           "name": "idx_users_org_deleted",
-          "columns": ["organisationId", "deletedAt"],
+          "columns": [
+            "organisationId",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Multi-tenant user listing with soft-delete filter. Supports queries like 'get all active users in organisation'."
         },
         {
           "name": "idx_users_invite_token",
-          "columns": ["inviteToken"],
+          "columns": [
+            "inviteToken"
+          ],
           "type": "btree",
           "rationale": "Lookup by invite token during registration flow"
         },
         {
           "name": "idx_users_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for user queries"
         }
@@ -223,7 +284,7 @@
     },
     {
       "name": "canonicalSchemas",
-      "schemaFile": "server/db/schema/canonicalSchemas.schema.ts",
+      "schemaFile": "server/db/schema/canonicalSchemas.ts",
       "tenantKey": "none",
       "columns": [
         {
@@ -232,7 +293,10 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
@@ -241,7 +305,9 @@
           "unique": true,
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -249,7 +315,9 @@
           "type": "integer",
           "drizzle": {
             "columnType": "integer",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -257,7 +325,9 @@
           "type": "json",
           "drizzle": {
             "columnType": "jsonb",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "jsonSchema": {
             "type": "object",
@@ -267,17 +337,46 @@
                 "items": {
                   "type": "object",
                   "properties": {
-                    "name": {"type": "string"},
-                    "type": {"type": "string", "enum": ["string", "number", "boolean", "timestamp", "array", "object"]},
-                    "required": {"type": "boolean"},
-                    "description": {"type": "string"}
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "string",
+                        "number",
+                        "boolean",
+                        "timestamp",
+                        "array",
+                        "object"
+                      ]
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               },
-              "outputFormat": {"type": "string", "enum": ["conversationalJsonl", "qaJson", "structuredJson"]}
+              "outputFormat": {
+                "type": "string",
+                "enum": [
+                  "conversationalJsonl",
+                  "qaJson",
+                  "structuredJson"
+                ]
+              }
             },
-            "required": ["fields", "outputFormat"]
+            "required": [
+              "fields",
+              "outputFormat"
+            ]
           }
         },
         {
@@ -285,11 +384,16 @@
           "type": "integer",
           "drizzle": {
             "columnType": "integer",
-            "options": {"notNull": true, "default": 1}
+            "options": {
+              "notNull": true,
+              "default": 1
+            }
           },
           "versionStrategy": {
             "type": "auto-increment",
-            "incrementOn": ["UPDATE schemaDefinition"],
+            "incrementOn": [
+              "UPDATE schemaDefinition"
+            ],
             "implementation": "application-layer"
           }
         },
@@ -298,7 +402,9 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -306,7 +412,10 @@
           "type": "boolean",
           "drizzle": {
             "columnType": "boolean",
-            "options": {"notNull": true, "default": false}
+            "options": {
+              "notNull": true,
+              "default": false
+            }
           }
         },
         {
@@ -314,7 +423,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -322,30 +435,60 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
+          }
+        },
+        {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "nullable": true,
+          "drizzle": {
+            "columnType": "timestamp",
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_canonical_schemas_name_version",
-          "columns": ["name", "version"],
+          "columns": [
+            "name",
+            "version"
+          ],
           "type": "btree",
           "unique": true,
           "rationale": "Versioned entity uniqueness: ensure each schema name + version combination is unique"
         },
         {
           "name": "idx_canonical_schemas_published",
-          "columns": ["isPublished"],
+          "columns": [
+            "isPublished"
+          ],
           "type": "btree",
           "rationale": "Singleton flag index coverage: lookup index for published schemas"
+        },
+        {
+          "name": "idx_canonical_schemas_deleted_at",
+          "columns": [
+            "deletedAt"
+          ],
+          "type": "btree",
+          "rationale": "Soft-delete filtering for canonical schema queries"
         }
       ],
-      "serviceFile": "server/services/canonicalSchemas.service.ts"
+      "serviceFile": "server/services/canonicalSchemas.service.ts",
+      "softDeleteColumn": "deletedAt",
+      "cascadeSemantics": "none"
     },
     {
       "name": "projects",
-      "schemaFile": "server/db/schema/projects.schema.ts",
+      "schemaFile": "server/db/schema/projects.ts",
       "tenantKey": "direct",
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -356,24 +499,35 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
           "name": "organisationId",
           "type": "uuid",
           "references": "organisations.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "createdByUserId",
           "type": "uuid",
           "references": "users.id",
-          "foreignKeyAction": {"onDelete": "SET NULL", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE"
+          },
           "nullable": true,
           "drizzle": {
             "columnType": "uuid",
@@ -384,10 +538,15 @@
           "name": "canonicalSchemaId",
           "type": "uuid",
           "references": "canonicalSchemas.id",
-          "foreignKeyAction": {"onDelete": "RESTRICT", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "RESTRICT",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -395,7 +554,9 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -410,11 +571,18 @@
         {
           "name": "status",
           "type": "enum",
-          "values": ["draft", "active", "archived"],
+          "values": [
+            "draft",
+            "active",
+            "archived"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "project_status",
-            "options": {"notNull": true, "default": "'draft'"}
+            "options": {
+              "notNull": true,
+              "default": "'draft'"
+            }
           },
           "typescriptMapping": {
             "type": "ProjectStatus",
@@ -439,13 +607,33 @@
                 "items": {
                   "type": "object",
                   "properties": {
-                    "field": {"type": "string"},
-                    "action": {"type": "string", "enum": ["mask", "hash", "redact", "tokenise", "drop"]}
+                    "field": {
+                      "type": "string"
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "mask",
+                        "hash",
+                        "redact",
+                        "tokenise",
+                        "drop"
+                      ]
+                    }
                   }
                 }
               },
-              "outputFormat": {"type": "string", "enum": ["conversationalJsonl", "qaJson", "structuredJson"]},
-              "maxRecords": {"type": "integer"}
+              "outputFormat": {
+                "type": "string",
+                "enum": [
+                  "conversationalJsonl",
+                  "qaJson",
+                  "structuredJson"
+                ]
+              },
+              "maxRecords": {
+                "type": "integer"
+              }
             }
           }
         },
@@ -455,11 +643,15 @@
           "nullable": true,
           "drizzle": {
             "columnType": "integer",
-            "options": {"default": 1}
+            "options": {
+              "default": 1
+            }
           },
           "versionStrategy": {
             "type": "auto-increment",
-            "incrementOn": ["UPDATE processingConfig"],
+            "incrementOn": [
+              "UPDATE processingConfig"
+            ],
             "implementation": "application-layer"
           }
         },
@@ -468,7 +660,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -476,7 +672,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -485,14 +685,19 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_projects_org_name_active",
-          "columns": ["organisationId", "name"],
+          "columns": [
+            "organisationId",
+            "name"
+          ],
           "type": "btree",
           "unique": true,
           "indexType": "partialUnique",
@@ -501,31 +706,43 @@
         },
         {
           "name": "idx_projects_org_deleted",
-          "columns": ["organisationId", "deletedAt"],
+          "columns": [
+            "organisationId",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Multi-tenant project listing with soft-delete filter"
         },
         {
           "name": "idx_projects_status",
-          "columns": ["status", "deletedAt"],
+          "columns": [
+            "status",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup projects by status with soft-delete filter"
         },
         {
           "name": "idx_projects_created_by",
-          "columns": ["createdByUserId"],
+          "columns": [
+            "createdByUserId"
+          ],
           "type": "btree",
           "rationale": "Audit lookup: projects created by specific user"
         },
         {
           "name": "idx_projects_canonical_schema",
-          "columns": ["canonicalSchemaId"],
+          "columns": [
+            "canonicalSchemaId"
+          ],
           "type": "btree",
           "rationale": "Lookup projects using specific canonical schema"
         },
         {
           "name": "idx_projects_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for project queries"
         }
@@ -534,15 +751,24 @@
     },
     {
       "name": "sources",
-      "schemaFile": "server/db/schema/sources.schema.ts",
+      "schemaFile": "server/db/schema/sources.ts",
       "tenantKey": "indirect",
       "projectScopeStrategy": "joinPath",
       "joinPath": [
-        {"table": "sources", "joinColumn": "projectId"},
-        {"table": "projects", "joinColumn": "organisationId"}
+        {
+          "table": "sources",
+          "joinColumn": "projectId"
+        },
+        {
+          "table": "projects",
+          "joinColumn": "organisationId"
+        }
       ],
       "requiredFiltering": [
-        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+        {
+          "parameter": "organisationId",
+          "derivedFrom": "projects.organisationId"
+        }
       ],
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -553,17 +779,25 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
           "name": "projectId",
           "type": "uuid",
           "references": "projects.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -571,17 +805,24 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "sourceType",
           "type": "enum",
-          "values": ["file", "api"],
+          "values": [
+            "file",
+            "api"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "source_type",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "typescriptMapping": {
             "type": "SourceType",
@@ -628,9 +869,20 @@
           "jsonSchema": {
             "type": "object",
             "properties": {
-              "endpoint": {"type": "string"},
-              "authType": {"type": "string", "enum": ["none", "apiKey", "oauth"]},
-              "credentials": {"type": "object"}
+              "endpoint": {
+                "type": "string"
+              },
+              "authType": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "apiKey",
+                  "oauth"
+                ]
+              },
+              "credentials": {
+                "type": "object"
+              }
             }
           }
         },
@@ -640,22 +892,34 @@
           "nullable": true,
           "drizzle": {
             "columnType": "integer",
-            "options": {"default": 1}
+            "options": {
+              "default": 1
+            }
           },
           "versionStrategy": {
             "type": "auto-increment",
-            "incrementOn": ["UPDATE apiConnectionConfig"],
+            "incrementOn": [
+              "UPDATE apiConnectionConfig"
+            ],
             "implementation": "application-layer"
           }
         },
         {
           "name": "status",
           "type": "enum",
-          "values": ["connected", "cached", "expired", "error"],
+          "values": [
+            "connected",
+            "cached",
+            "expired",
+            "error"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "source_status",
-            "options": {"notNull": true, "default": "'connected'"}
+            "options": {
+              "notNull": true,
+              "default": "'connected'"
+            }
           },
           "typescriptMapping": {
             "type": "SourceStatus",
@@ -679,7 +943,9 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         },
         {
@@ -688,7 +954,9 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         },
         {
@@ -714,7 +982,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -722,7 +994,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -731,32 +1007,44 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_sources_project",
-          "columns": ["projectId", "deletedAt"],
+          "columns": [
+            "projectId",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup sources by project with soft-delete filter"
         },
         {
           "name": "idx_sources_status",
-          "columns": ["status", "deletedAt"],
+          "columns": [
+            "status",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup sources by status with soft-delete filter"
         },
         {
           "name": "idx_sources_cache_expiry",
-          "columns": ["cacheExpiryDate"],
+          "columns": [
+            "cacheExpiryDate"
+          ],
           "type": "btree",
           "rationale": "Timestamp column indexing: used for cache cleanup queries to find expired sources"
         },
         {
           "name": "idx_sources_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for source queries"
         }
@@ -765,15 +1053,24 @@
     },
     {
       "name": "processingJobs",
-      "schemaFile": "server/db/schema/processingJobs.schema.ts",
+      "schemaFile": "server/db/schema/processingJobs.ts",
       "tenantKey": "indirect",
       "projectScopeStrategy": "joinPath",
       "joinPath": [
-        {"table": "processingJobs", "joinColumn": "projectId"},
-        {"table": "projects", "joinColumn": "organisationId"}
+        {
+          "table": "processingJobs",
+          "joinColumn": "projectId"
+        },
+        {
+          "table": "projects",
+          "joinColumn": "organisationId"
+        }
       ],
       "requiredFiltering": [
-        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+        {
+          "parameter": "organisationId",
+          "derivedFrom": "projects.organisationId"
+        }
       ],
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -784,27 +1081,40 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
           "name": "projectId",
           "type": "uuid",
           "references": "projects.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "triggeredBy",
           "type": "enum",
-          "values": ["manual", "scheduled"],
+          "values": [
+            "manual",
+            "scheduled"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "job_trigger",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "typescriptMapping": {
             "type": "JobTrigger",
@@ -817,7 +1127,10 @@
           "name": "triggeredByUserId",
           "type": "uuid",
           "references": "users.id",
-          "foreignKeyAction": {"onDelete": "SET NULL", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE"
+          },
           "nullable": true,
           "drizzle": {
             "columnType": "uuid",
@@ -827,11 +1140,19 @@
         {
           "name": "status",
           "type": "enum",
-          "values": ["queued", "processing", "completed", "failed"],
+          "values": [
+            "queued",
+            "processing",
+            "completed",
+            "failed"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "processing_job_status",
-            "options": {"notNull": true, "default": "'queued'"}
+            "options": {
+              "notNull": true,
+              "default": "'queued'"
+            }
           },
           "typescriptMapping": {
             "type": "ProcessingJobStatus",
@@ -845,17 +1166,33 @@
           "type": "json",
           "drizzle": {
             "columnType": "jsonb",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "jsonSchema": {
             "type": "object",
             "properties": {
-              "projectConfig": {"type": "object"},
-              "sourceIds": {"type": "array", "items": {"type": "string"}},
-              "deidentificationRules": {"type": "array"},
-              "canonicalSchemaVersion": {"type": "integer"}
+              "projectConfig": {
+                "type": "object"
+              },
+              "sourceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "deidentificationRules": {
+                "type": "array"
+              },
+              "canonicalSchemaVersion": {
+                "type": "integer"
+              }
             },
-            "required": ["projectConfig", "sourceIds"]
+            "required": [
+              "projectConfig",
+              "sourceIds"
+            ]
           }
         },
         {
@@ -863,11 +1200,16 @@
           "type": "integer",
           "drizzle": {
             "columnType": "integer",
-            "options": {"notNull": true, "default": 1}
+            "options": {
+              "notNull": true,
+              "default": 1
+            }
           },
           "versionStrategy": {
             "type": "auto-increment",
-            "incrementOn": ["UPDATE configSnapshot"],
+            "incrementOn": [
+              "UPDATE configSnapshot"
+            ],
             "implementation": "application-layer"
           }
         },
@@ -904,7 +1246,9 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         },
         {
@@ -913,7 +1257,9 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         },
         {
@@ -921,7 +1267,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -929,7 +1279,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -938,38 +1292,52 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_processing_jobs_project",
-          "columns": ["projectId", "deletedAt"],
+          "columns": [
+            "projectId",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup jobs by project with soft-delete filter"
         },
         {
           "name": "idx_processing_jobs_status",
-          "columns": ["status", "deletedAt"],
+          "columns": [
+            "status",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup jobs by status with soft-delete filter for job queue management"
         },
         {
           "name": "idx_processing_jobs_triggered_by",
-          "columns": ["triggeredByUserId"],
+          "columns": [
+            "triggeredByUserId"
+          ],
           "type": "btree",
           "rationale": "Audit lookup: jobs triggered by specific user"
         },
         {
           "name": "idx_processing_jobs_created_at",
-          "columns": ["createdAt"],
+          "columns": [
+            "createdAt"
+          ],
           "type": "btree",
           "rationale": "Timestamp column indexing: used for job history queries ordered by creation time"
         },
         {
           "name": "idx_processing_jobs_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for job queries"
         }
@@ -978,15 +1346,24 @@
     },
     {
       "name": "datasets",
-      "schemaFile": "server/db/schema/datasets.schema.ts",
+      "schemaFile": "server/db/schema/datasets.ts",
       "tenantKey": "indirect",
       "projectScopeStrategy": "joinPath",
       "joinPath": [
-        {"table": "datasets", "joinColumn": "projectId"},
-        {"table": "projects", "joinColumn": "organisationId"}
+        {
+          "table": "datasets",
+          "joinColumn": "projectId"
+        },
+        {
+          "table": "projects",
+          "joinColumn": "organisationId"
+        }
       ],
       "requiredFiltering": [
-        {"parameter": "organisationId", "derivedFrom": "projects.organisationId"}
+        {
+          "parameter": "organisationId",
+          "derivedFrom": "projects.organisationId"
+        }
       ],
       "softDeleteColumn": "deletedAt",
       "cascadeSemantics": "softDeletePrimary",
@@ -997,27 +1374,40 @@
           "primary": true,
           "drizzle": {
             "columnType": "uuid",
-            "options": {"primaryKey": true, "defaultRandom": true}
+            "options": {
+              "primaryKey": true,
+              "defaultRandom": true
+            }
           }
         },
         {
           "name": "projectId",
           "type": "uuid",
           "references": "projects.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "processingJobId",
           "type": "uuid",
           "references": "processingJobs.id",
-          "foreignKeyAction": {"onDelete": "CASCADE", "onUpdate": "CASCADE"},
+          "foreignKeyAction": {
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
           "drizzle": {
             "columnType": "uuid",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -1025,17 +1415,25 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
           "name": "outputFormat",
           "type": "enum",
-          "values": ["conversationalJsonl", "qaJson", "structuredJson"],
+          "values": [
+            "conversationalJsonl",
+            "qaJson",
+            "structuredJson"
+          ],
           "drizzle": {
             "columnType": "pgEnum",
             "enumName": "output_format",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "typescriptMapping": {
             "type": "OutputFormat",
@@ -1049,7 +1447,9 @@
           "type": "string",
           "drizzle": {
             "columnType": "text",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -1057,7 +1457,9 @@
           "type": "integer",
           "drizzle": {
             "columnType": "integer",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -1065,7 +1467,9 @@
           "type": "bigint",
           "drizzle": {
             "columnType": "bigint",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           }
         },
         {
@@ -1073,17 +1477,37 @@
           "type": "json",
           "drizzle": {
             "columnType": "jsonb",
-            "options": {"notNull": true}
+            "options": {
+              "notNull": true
+            }
           },
           "jsonSchema": {
             "type": "object",
             "properties": {
-              "sourceIds": {"type": "array", "items": {"type": "string"}},
-              "transformations": {"type": "array", "items": {"type": "string"}},
-              "deidentificationApplied": {"type": "boolean"},
-              "processingTimestamp": {"type": "string", "format": "date-time"}
+              "sourceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "transformations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "deidentificationApplied": {
+                "type": "boolean"
+              },
+              "processingTimestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
             },
-            "required": ["sourceIds", "transformations"]
+            "required": [
+              "sourceIds",
+              "transformations"
+            ]
           }
         },
         {
@@ -1091,7 +1515,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -1099,7 +1527,11 @@
           "type": "timestamp",
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date", "notNull": true, "defaultNow": true}
+            "options": {
+              "mode": "date",
+              "notNull": true,
+              "defaultNow": true
+            }
           }
         },
         {
@@ -1108,38 +1540,52 @@
           "nullable": true,
           "drizzle": {
             "columnType": "timestamp",
-            "options": {"mode": "date"}
+            "options": {
+              "mode": "date"
+            }
           }
         }
       ],
       "indexes": [
         {
           "name": "idx_datasets_project",
-          "columns": ["projectId", "deletedAt"],
+          "columns": [
+            "projectId",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup datasets by project with soft-delete filter"
         },
         {
           "name": "idx_datasets_processing_job",
-          "columns": ["processingJobId"],
+          "columns": [
+            "processingJobId"
+          ],
           "type": "btree",
           "rationale": "Lookup datasets produced by specific processing job"
         },
         {
           "name": "idx_datasets_output_format",
-          "columns": ["outputFormat", "deletedAt"],
+          "columns": [
+            "outputFormat",
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Lookup datasets by output format with soft-delete filter"
         },
         {
           "name": "idx_datasets_created_at",
-          "columns": ["createdAt"],
+          "columns": [
+            "createdAt"
+          ],
           "type": "btree",
           "rationale": "Timestamp column indexing: used for dataset history queries ordered by creation time"
         },
         {
           "name": "idx_datasets_deleted_at",
-          "columns": ["deletedAt"],
+          "columns": [
+            "deletedAt"
+          ],
           "type": "btree",
           "rationale": "Soft-delete filtering for dataset queries"
         }
@@ -1151,8 +1597,14 @@
     {
       "parentEntity": "organisations",
       "cascadeTargets": [
-        {"table": "users", "foreignKey": "organisationId"},
-        {"table": "projects", "foreignKey": "organisationId"}
+        {
+          "table": "users",
+          "foreignKey": "organisationId"
+        },
+        {
+          "table": "projects",
+          "foreignKey": "organisationId"
+        }
       ],
       "executionOrder": 1,
       "cascadeSemantics": "softDeletePrimary",
@@ -1161,9 +1613,18 @@
     {
       "parentEntity": "projects",
       "cascadeTargets": [
-        {"table": "sources", "foreignKey": "projectId"},
-        {"table": "processingJobs", "foreignKey": "projectId"},
-        {"table": "datasets", "foreignKey": "projectId"}
+        {
+          "table": "sources",
+          "foreignKey": "projectId"
+        },
+        {
+          "table": "processingJobs",
+          "foreignKey": "projectId"
+        },
+        {
+          "table": "datasets",
+          "foreignKey": "projectId"
+        }
       ],
       "executionOrder": 2,
       "cascadeSemantics": "softDeletePrimary",
