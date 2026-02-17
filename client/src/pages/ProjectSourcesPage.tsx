@@ -4,10 +4,27 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { api } from '../lib/api';
 
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  file: 'File Upload',
+  api: 'API Connection',
+};
+
+const API_PROVIDER_LABELS: Record<string, string> = {
+  teamwork_desk: 'Teamwork Desk',
+};
+
+function getSourceTypeLabel(sourceType: string): string {
+  return SOURCE_TYPE_LABELS[sourceType] ?? sourceType;
+}
+
+function getApiProviderLabel(provider: string): string {
+  return API_PROVIDER_LABELS[provider] ?? provider;
+}
+
 export default function ProjectSourcesPage() {
   const { projectId } = useParams();
 
-  const { data: sources = [], isLoading } = useQuery({
+  const { data: sources = [], isLoading, isError, error } = useQuery({
     queryKey: ['project-sources', projectId],
     queryFn: () => api.get(`/projects/${projectId}/sources`)
   });
@@ -29,6 +46,12 @@ export default function ProjectSourcesPage() {
       <div className="mt-8">
         {isLoading ? (
           <div>Loading...</div>
+        ) : isError ? (
+          <div className="rounded-md bg-red-50 p-4">
+            <p className="text-sm text-red-800">
+              Failed to load sources: {(error as Error)?.message ?? 'Unknown error'}
+            </p>
+          </div>
         ) : (sources as any[]).length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">No sources configured for this project.</p>
@@ -40,7 +63,14 @@ export default function ProjectSourcesPage() {
                 <li key={source.id} className="px-4 py-4 sm:px-6">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{source.name}</p>
-                    <p className="text-sm text-gray-500">Type: {source.sourceType}</p>
+                    <p className="text-sm text-gray-500">
+                      Type: {getSourceTypeLabel(source.sourceType)}
+                      {source.sourceType === 'api' && source.apiConnectionConfig?.provider && (
+                        <span className="ml-1 text-gray-400">
+                          ({getApiProviderLabel(source.apiConnectionConfig.provider)})
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-gray-500 mt-1">Status: {source.status}</p>
                   </div>
                 </li>
