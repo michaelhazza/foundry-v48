@@ -37,10 +37,10 @@ REQUIRED_ENDPOINTS=(
 
 for endpoint in "${REQUIRED_ENDPOINTS[@]}"; do
   METHOD="${endpoint%%:*}"
-  PATH="${endpoint#*:}"
-  
-  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$PATH\")" "$API_CONTRACT" > /dev/null; then
-    echo "[❌] Missing required endpoint: $METHOD $PATH"
+  ENDPOINT_PATH="${endpoint#*:}"
+
+  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$ENDPOINT_PATH\")" "$API_CONTRACT" > /dev/null; then
+    echo "[❌] Missing required endpoint: $METHOD $ENDPOINT_PATH"
     exit 1
   fi
 done
@@ -50,10 +50,10 @@ ENDPOINT_COUNT=$(jq '.endpoints | length' "$API_CONTRACT")
 ENDPOINTS_WITHOUT_AUTH_SPEC=0
 
 for ((i=0; i<ENDPOINT_COUNT; i++)); do
-  PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
-  
+  ENDPOINT_PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
+
   if ! jq -e ".endpoints[$i].authentication" "$API_CONTRACT" > /dev/null; then
-    echo "[⚠️] Endpoint $PATH missing authentication specification"
+    echo "[⚠️] Endpoint $ENDPOINT_PATH missing authentication specification"
     ENDPOINTS_WITHOUT_AUTH_SPEC=$((ENDPOINTS_WITHOUT_AUTH_SPEC + 1))
   fi
 done
@@ -67,17 +67,17 @@ fi
 MISSING_SERVICE_CONTRACTS=0
 
 for ((i=0; i<ENDPOINT_COUNT; i++)); do
-  PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
+  ENDPOINT_PATH=$(jq -r ".endpoints[$i].path" "$API_CONTRACT")
   STATUS=$(jq -r ".endpoints[$i].status" "$API_CONTRACT")
-  
+
   if [[ "$STATUS" == "required" ]]; then
     if ! jq -e ".endpoints[$i].serviceContract.serviceFile" "$API_CONTRACT" > /dev/null; then
-      echo "[⚠️] Required endpoint $PATH missing serviceFile"
+      echo "[⚠️] Required endpoint $ENDPOINT_PATH missing serviceFile"
       MISSING_SERVICE_CONTRACTS=$((MISSING_SERVICE_CONTRACTS + 1))
     fi
     
     if ! jq -e ".endpoints[$i].serviceContract.methodName" "$API_CONTRACT" > /dev/null; then
-      echo "[⚠️] Required endpoint $PATH missing methodName"
+      echo "[⚠️] Required endpoint $ENDPOINT_PATH missing methodName"
       MISSING_SERVICE_CONTRACTS=$((MISSING_SERVICE_CONTRACTS + 1))
     fi
   fi

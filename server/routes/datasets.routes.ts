@@ -11,7 +11,7 @@ router.get('/', authenticate, async (req: any, res, next) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
     const projectId = req.query.projectId as string | undefined;
-    const outputFormat = req.query.outputFormat as any;
+    const outputFormat = req.query.outputFormat as 'conversationalJsonl' | 'qaJson' | 'structuredJson' | undefined;
     const datasets = await datasetsService.listDatasets(
       req.user.organisationId,
       projectId,

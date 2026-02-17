@@ -25,7 +25,7 @@ router.get('/', authenticate, async (req: any, res, next) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
     const projectId = req.query.projectId as string | undefined;
-    const status = req.query.status as any;
+    const status = req.query.status as 'queued' | 'processing' | 'completed' | 'failed' | undefined;
     const jobs = await processingJobsService.listProcessingJobs(
       req.user.organisationId,
       projectId,

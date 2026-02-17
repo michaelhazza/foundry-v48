@@ -23,10 +23,10 @@ MISSING_AUTH=0
 
 for endpoint in "${AUTH_ENDPOINTS[@]}"; do
   METHOD="${endpoint%%:*}"
-  PATH="${endpoint#*:}"
-  
-  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$PATH\")" service-contracts.json > /dev/null; then
-    echo "[⚠️] Missing authentication endpoint: $METHOD $PATH"
+  ENDPOINT_PATH="${endpoint#*:}"
+
+  if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$ENDPOINT_PATH\")" service-contracts.json > /dev/null; then
+    echo "[⚠️] Missing authentication endpoint: $METHOD $ENDPOINT_PATH"
     MISSING_AUTH=$((MISSING_AUTH + 1))
   fi
 done

@@ -23,7 +23,7 @@ router.get('/', authenticate, async (req: any, res, next) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
-    const status = req.query.status as any;
+    const status = req.query.status as 'draft' | 'active' | 'archived' | undefined;
     const projects = await projectsService.listProjects(
       req.user.organisationId,
       page,
