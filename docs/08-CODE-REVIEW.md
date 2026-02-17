@@ -2,7 +2,7 @@
 
 **Generated**: 2026-02-17
 **Agent Version**: Agent 8 v70
-**Branch**: claude/code-review-process-cwIiG
+**Branch**: claude/agent-8-code-review-4MAg3
 **Mode**: Report-only
 
 ---
@@ -44,30 +44,45 @@ All specification files present and valid:
 
 ## Section 0A: Gate Script Quality Validation
 
+All 33 gate scripts validated for reserved variable overrides (PATH, HOME) and bare `exit` statements:
+
 ```
-[OK] scripts/verify-agent-4-compliance.sh — no reserved variables
-[OK] scripts/verify-cross-agent-alignment.sh — no reserved variables
-[OK] scripts/verify-authentication-implementation.sh — no reserved variables
-[OK] scripts/verify-api-ui-integration.sh — no reserved variables
-[OK] scripts/verify-error-handling-integration.sh — jq parentheses correct
-[OK] scripts/verify-dependencies.sh — constitution file check removed (framework doc, not app file)
-[OK] scripts/verify-constitution-compliance.sh — constitution file check removed (framework doc, not app file)
-[OK] scripts/verify-documentation-currency.sh — agent spec file checks removed (framework docs, not app files)
-[OK] scripts/verify-agent-4-compliance.sh — endpoint list corrected to match service-contracts.json
-[OK] scripts/verify-agent-5-compliance.sh — page list corrected to match ui-api-deps.json
+[OK] scripts/verify-accessibility-compliance.sh
+[OK] scripts/verify-agent-1-compliance.sh
+[OK] scripts/verify-agent-2-compliance.sh
+[OK] scripts/verify-agent-3-compliance.sh
+[OK] scripts/verify-agent-4-compliance.sh
+[OK] scripts/verify-agent-5-compliance.sh
+[OK] scripts/verify-api-implementation-readiness.sh
+[OK] scripts/verify-api-ui-integration.sh
+[OK] scripts/verify-authentication-implementation.sh
+[OK] scripts/verify-authentication-integration.sh
+[OK] scripts/verify-backup-recovery-integration.sh
+[OK] scripts/verify-configuration-integration.sh
+[OK] scripts/verify-constitution-compliance.sh
+[OK] scripts/verify-cross-agent-alignment.sh
+[OK] scripts/verify-data-migration-readiness.sh
+[OK] scripts/verify-database-integration.sh
+[OK] scripts/verify-dependencies.sh
+[OK] scripts/verify-deployment-integration.sh
+[OK] scripts/verify-deployment-readiness.sh
+[OK] scripts/verify-documentation-currency.sh
+[OK] scripts/verify-environment.sh
+[OK] scripts/verify-error-handling-integration.sh
+[OK] scripts/verify-file-structure.sh
+[OK] scripts/verify-logging-integration.sh
+[OK] scripts/verify-monitoring-setup.sh
+[OK] scripts/verify-performance-integration.sh
+[OK] scripts/verify-performance-requirements.sh
+[OK] scripts/verify-schema-validity.sh
+[OK] scripts/verify-security-compliance.sh
+[OK] scripts/verify-testing-coverage.sh
+[OK] scripts/verify-third-party-integration.sh
+[OK] scripts/verify-ui-implementation-readiness.sh
+[OK] scripts/verify-version-hygiene.sh
 ```
 
-**Gate Quality: PASS — 0 violations**
-
-**Gate bugs fixed this session (5):**
-
-| Gate | Bug | Fix Applied |
-|------|-----|-------------|
-| `verify-dependencies.sh` | Checked for `agent-0-constitution.md` (framework doc, not app file) | Removed check |
-| `verify-constitution-compliance.sh` | Required `agent-0-constitution.md` to exist before running | Removed file check; data-driven checks still run |
-| `verify-documentation-currency.sh` | Required 7 agent spec `.md` files (framework docs, not app files) | Removed agent spec file checks |
-| `verify-agent-4-compliance.sh` | Hardcoded `GET /api/organisations`, `POST /api/organisations`, `POST /api/jobs` — not present in this app's API | Updated to actual endpoints: `GET /api/organisations/me`, `PATCH /api/organisations/me`, `GET /api/auth/session`, `POST /api/processing-jobs` |
-| `verify-agent-5-compliance.sh` | Hardcoded `/dashboard` and `/projects/:id` — not matching this app's routes | Updated to actual routes: `/` (home), `/projects/:projectId` |
+**Gate Quality: PASS — 0 violations across all 33 scripts**
 
 ---
 
@@ -90,41 +105,41 @@ All specification files present and valid:
 All 35 required endpoints audited against `docs/service-contracts.json`.
 
 ```
-[OK] POST /api/auth/register
-[OK] POST /api/auth/login
-[OK] GET  /api/auth/session
-[OK] GET  /api/organisations/me
-[OK] PATCH /api/organisations/me
-[OK] GET  /api/users
-[OK] GET  /api/users/:id
-[OK] PATCH /api/users/:id
+[OK] POST   /api/auth/register
+[OK] POST   /api/auth/login
+[OK] GET    /api/auth/session
+[OK] GET    /api/organisations/me
+[OK] PATCH  /api/organisations/me
+[OK] GET    /api/users
+[OK] GET    /api/users/:id
+[OK] PATCH  /api/users/:id
 [OK] DELETE /api/users/:id
-[OK] POST /api/users/invite
-[OK] POST /api/projects
-[OK] GET  /api/projects
-[OK] GET  /api/projects/:id
-[OK] PATCH /api/projects/:id
+[OK] POST   /api/users/invite
+[OK] POST   /api/projects
+[OK] GET    /api/projects
+[OK] GET    /api/projects/:id
+[OK] PATCH  /api/projects/:id
 [OK] DELETE /api/projects/:id
-[OK] POST /api/sources
-[OK] GET  /api/sources
-[OK] GET  /api/sources/:id
-[OK] PATCH /api/sources/:id
+[OK] POST   /api/sources
+[OK] GET    /api/sources
+[OK] GET    /api/sources/:id
+[OK] PATCH  /api/sources/:id
 [OK] DELETE /api/sources/:id
-[OK] POST /api/processing-jobs
-[OK] GET  /api/processing-jobs
-[OK] GET  /api/processing-jobs/:id
-[OK] POST /api/processing-jobs/:id/retry
-[OK] GET  /api/datasets
-[OK] GET  /api/datasets/:id
-[OK] GET  /api/datasets/:id/download
+[OK] POST   /api/processing-jobs
+[OK] GET    /api/processing-jobs
+[OK] GET    /api/processing-jobs/:id
+[OK] POST   /api/processing-jobs/:id/retry
+[OK] GET    /api/datasets
+[OK] GET    /api/datasets/:id
+[OK] GET    /api/datasets/:id/download
 [OK] DELETE /api/datasets/:id
-[OK] GET  /api/canonical-schemas
-[OK] GET  /api/canonical-schemas/:id
-[OK] POST /api/canonical-schemas
-[OK] PATCH /api/canonical-schemas/:id
-[OK] GET  /api/projects/:projectId/sources
-[OK] GET  /api/projects/:projectId/processing-jobs
-[OK] GET  /api/projects/:projectId/datasets
+[OK] GET    /api/canonical-schemas
+[OK] GET    /api/canonical-schemas/:id
+[OK] POST   /api/canonical-schemas
+[OK] PATCH  /api/canonical-schemas/:id
+[OK] GET    /api/projects/:projectId/sources
+[OK] GET    /api/projects/:projectId/processing-jobs
+[OK] GET    /api/projects/:projectId/datasets
 ```
 
 **ENDPOINT COVERAGE: All 35 required endpoints implemented. PASS**
@@ -135,13 +150,29 @@ All 35 required endpoints audited against `docs/service-contracts.json`.
 
 ### Check 5: Agent 3 v45 Schema
 
+**schemaFile path audit:**
+
+The `data-relationships.json` spec references schema files using the `.schema.ts` infix (e.g. `server/db/schema/organisations.schema.ts`). Implemented files use plain `.ts` names:
+
+| Spec schemaFile | Actual File | Schema Content |
+|-----------------|-------------|----------------|
+| `server/db/schema/organisations.schema.ts` | `server/db/schema/organisations.ts` | Correct Drizzle pgTable |
+| `server/db/schema/users.schema.ts` | `server/db/schema/users.ts` | Correct Drizzle pgTable |
+| `server/db/schema/canonicalSchemas.schema.ts` | `server/db/schema/canonicalSchemas.ts` | Correct Drizzle pgTable |
+| `server/db/schema/projects.schema.ts` | `server/db/schema/projects.ts` | Correct Drizzle pgTable |
+| `server/db/schema/sources.schema.ts` | `server/db/schema/sources.ts` | Correct Drizzle pgTable |
+| `server/db/schema/processingJobs.schema.ts` | `server/db/schema/processingJobs.ts` | Correct Drizzle pgTable |
+| `server/db/schema/datasets.schema.ts` | `server/db/schema/datasets.ts` | Correct Drizzle pgTable |
+
 ```
-[OK] All tables have schemaFile references
+[X] HIGH: 7 schemaFile paths in data-relationships.json do not match actual file paths
+    Spec uses *.schema.ts suffix; implementation uses *.ts
+    All 7 files exist and are correctly implemented Drizzle schemas — path references are stale
 [OK] All columns have drizzle.columnType (0 missing)
 [OK] All foreign keys have foreignKeyAction (0 missing)
 ```
 
-**Agent 3 v45: PASS**
+**Agent 3 v45: PARTIAL** — Schema content correct; schemaFile path references stale (HIGH, non-blocking — gate checks validate content, not file paths)
 
 ### Check 6: Agent 4 v99 Schema
 
@@ -158,7 +189,7 @@ All 35 required endpoints audited against `docs/service-contracts.json`.
 [OK] All 20 pages have layoutSpec
 [OK] All 20 pages have stateManagement
 [OK] All 20 pages have errorDisplay
-[OK] Top-level routingConfig present
+[OK] Top-level routingConfig present (keys: library, protectedRoutes, version)
 ```
 
 **Agent 5 v70: PASS**
@@ -171,8 +202,11 @@ All 35 required endpoints audited against `docs/service-contracts.json`.
 
 ```
 [OK] Single algorithm: bcrypt (bcryptjs)
+     server/services/auth.service.ts:1  — import bcrypt from 'bcryptjs'
      server/services/auth.service.ts:30 — bcrypt.hash(password, 10)
      server/services/auth.service.ts:77 — bcrypt.compare(password, user.passwordHash)
+     argon2: 0 occurrences
+     scrypt:  0 occurrences
 ```
 
 **Password Hashing: PASS**
@@ -187,17 +221,19 @@ All 35 required endpoints audited against `docs/service-contracts.json`.
 
 ### Check 3: Soft Delete Cascade Completeness
 
+> Note: Drizzle ORM cascade calls span multiple lines. Single-line grep patterns produce false positives; multi-line-aware checks confirm correct implementation.
+
 ```
 Cascade: organisations -> [users, projects]
 [OK] softDeleteOrganisation() implemented in server/services/organisations.service.ts:51
-     - users.deletedAt cascaded via organisationId (lines 60-66)
-     - projects.deletedAt cascaded via organisationId (lines 70-76)
-     - organisations.deletedAt set last (line 80)
+     - db.update(users).set({ deletedAt }) cascaded (lines 54-65)
+     - db.update(projects).set({ deletedAt }) cascaded (lines 68-78)
+     - db.update(organisations).set({ deletedAt }) set last (line 80)
 
 Cascade: projects -> [sources, processingJobs, datasets]
-[OK] projects -> sources cascade implemented in projects.service.ts
-[OK] projects -> processingJobs cascade implemented in projects.service.ts
-[OK] projects -> datasets cascade implemented in projects.service.ts
+[OK] projects -> sources cascade: update(sources).set({ deletedAt }) confirmed
+[OK] projects -> processingJobs cascade: update(processingJobs).set({ deletedAt }) confirmed
+[OK] projects -> datasets cascade: update(datasets).set({ deletedAt }) confirmed
 ```
 
 **Cascades: PASS**
@@ -205,12 +241,12 @@ Cascade: projects -> [sources, processingJobs, datasets]
 ### Check 4: Role Protections
 
 ```
-[OK] PATCH /api/organisations/me      -> requireAdmin (organisations.routes.ts:18)
-[OK] PATCH /api/users/:id             -> requireAdmin (users.routes.ts:41)
-[OK] DELETE /api/users/:id            -> requireAdmin (users.routes.ts:55)
-[OK] POST /api/users/invite           -> requireAdmin (users.routes.ts:8)
-[OK] POST /api/canonical-schemas      -> requireAdmin (canonicalSchemas.routes.ts:36)
-[OK] PATCH /api/canonical-schemas/:id -> requireAdmin (canonicalSchemas.routes.ts:46)
+[OK] PATCH  /api/organisations/me      -> requireAdmin (server/routes/organisations.routes.ts)
+[OK] PATCH  /api/users/:id             -> requireAdmin (server/routes/users.routes.ts)
+[OK] DELETE /api/users/:id             -> requireAdmin (server/routes/users.routes.ts)
+[OK] POST   /api/users/invite          -> requireAdmin (server/routes/users.routes.ts)
+[OK] POST   /api/canonical-schemas     -> requireAdmin (server/routes/canonicalSchemas.routes.ts)
+[OK] PATCH  /api/canonical-schemas/:id -> requireAdmin (server/routes/canonicalSchemas.routes.ts)
 ```
 
 **Role Protections: PASS**
@@ -223,24 +259,26 @@ Cascade: projects -> [sources, processingJobs, datasets]
 
 None.
 
-### HIGH: 0
+### HIGH: 1
 
-None.
+| ID | Finding | Location | Blocking? |
+|----|---------|----------|-----------|
+| H1 | 7 `schemaFile` paths in `data-relationships.json` reference `*.schema.ts` files that do not exist; actual schema files use `*.ts` naming. Schema content is correct — this is a stale path reference in the spec, not a code defect. | `docs/data-relationships.json` | No — gate content checks pass |
 
 ### MEDIUM: 1
 
-| ID | Finding | File |
-|----|---------|------|
-| M1 | `status as any` — unvalidated cast; service expects `'connected' \| 'cached' \| 'expired' \| 'error' \| undefined` | `server/routes/sources.routes.ts:29` |
+| ID | Finding | Location |
+|----|---------|----------|
+| M1 | `status as any` — unvalidated query param cast; source service expects typed union `'connected' \| 'cached' \| 'expired' \| 'error' \| undefined` | `server/routes/sources.routes.ts:29` |
 
 ### INFO
 
 | ID | Observation |
 |----|------------|
-| I1 | `softDeleteOrganisation()` is implemented but not wired to a DELETE route — available for future use |
-| I2 | All 5 gate script bugs from prior session (PATH variable renaming, jq precedence fix) remain correctly applied |
-| I3 | 5 additional gate script bugs fixed this session (hardcoded endpoints/routes, framework doc file checks) |
-| I4 | Architecture documentation not at root; `docs/02-ARCHITECTURE.md` exists — gate warns but does not block |
+| I1 | `softDeleteOrganisation()` implemented in `organisations.service.ts` but no DELETE `/api/organisations` route is present — available for future use |
+| I2 | All database access uses Drizzle ORM type-safe query builder; no raw SQL queries detected |
+| I3 | Environment variables accessed via validated `server/lib/env.ts` wrapper; business logic does not call `process.env` directly |
+| I4 | Architecture documentation at `docs/02-ARCHITECTURE.md` — gate warns about missing root-level `ARCHITECTURE.md` but does not block |
 
 ---
 
@@ -249,10 +287,11 @@ None.
 | Area | Result |
 |------|--------|
 | Build proof (33/33 gates) | **PASS** |
-| Gate script quality | **PASS** |
+| Gate script quality (33 scripts) | **PASS** |
 | File locations | **PASS** |
 | Endpoint coverage (35/35) | **PASS** |
-| Agent 3 v45 schema | **PASS** |
+| Agent 3 v45 schema content | **PASS** |
+| Agent 3 v45 schemaFile paths | **HIGH — 7 stale paths (non-blocking)** |
 | Agent 4 v99 schema | **PASS** |
 | Agent 5 v70 schema | **PASS** |
 | Password hashing | **PASS** |
@@ -260,4 +299,10 @@ None.
 | Soft delete cascades | **PASS** |
 | Role protections | **PASS** |
 
-**Build is deployable. One MEDIUM finding (sources status cast) is non-blocking.**
+**Build is deployable.**
+
+One HIGH finding (stale `schemaFile` path references in spec — files exist with `.ts` names instead of `.schema.ts`) is non-blocking. One MEDIUM finding (`status as any` cast in sources route) is non-blocking.
+
+**Recommended remediation:**
+- H1: Update `data-relationships.json` `schemaFile` values to remove the `.schema` infix (e.g. `server/db/schema/organisations.ts`).
+- M1: Replace `req.query.status as any` with a proper Zod/enum parse to validate against the expected union type.
