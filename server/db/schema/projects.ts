@@ -1,7 +1,8 @@
-import { pgTable, uuid, text, timestamp, pgEnum, jsonb, integer, index, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, pgEnum, jsonb, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisations } from './organisations';
 import { users } from './users';
 import { canonicalSchemas } from './canonicalSchemas';
+import { sql } from 'drizzle-orm';
 
 export const projectStatusEnum = pgEnum('project_status', ['draft', 'active', 'archived']);
 
@@ -19,9 +20,9 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { mode: 'date' })
 }, (table) => ({
-  orgNameActiveIdx: unique('idx_projects_org_name_active')
+  orgNameActiveIdx: uniqueIndex('idx_projects_org_name_active')
     .on(table.organisationId, table.name)
-    .where(table.deletedAt.isNull()),
+    .where(sql`${table.deletedAt} IS NULL`),
   orgDeletedIdx: index('idx_projects_org_deleted').on(table.organisationId, table.deletedAt),
   statusIdx: index('idx_projects_status').on(table.status, table.deletedAt),
   createdByIdx: index('idx_projects_created_by').on(table.createdByUserId),

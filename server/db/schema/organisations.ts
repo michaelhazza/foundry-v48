@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, timestamp, index, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 export const organisations = pgTable('organisations', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -8,9 +9,9 @@ export const organisations = pgTable('organisations', {
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { mode: 'date' })
 }, (table) => ({
-  slugActiveIdx: unique('idx_orgs_slug_active')
+  slugActiveIdx: uniqueIndex('idx_orgs_slug_active')
     .on(table.slug)
-    .where(table.deletedAt.isNull()),
+    .where(sql`${table.deletedAt} IS NULL`),
   deletedAtIdx: index('idx_orgs_deleted_at').on(table.deletedAt)
 }));
 

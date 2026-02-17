@@ -1,5 +1,6 @@
-import { pgTable, uuid, text, timestamp, pgEnum, index, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisations } from './organisations';
+import { sql } from 'drizzle-orm';
 
 export const userRoleEnum = pgEnum('user_role', ['admin', 'member']);
 
@@ -16,9 +17,9 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { mode: 'date' })
 }, (table) => ({
-  emailActiveIdx: unique('idx_users_email_active')
+  emailActiveIdx: uniqueIndex('idx_users_email_active')
     .on(table.email)
-    .where(table.deletedAt.isNull()),
+    .where(sql`${table.deletedAt} IS NULL`),
   orgDeletedIdx: index('idx_users_org_deleted').on(table.organisationId, table.deletedAt),
   inviteTokenIdx: index('idx_users_invite_token').on(table.inviteToken),
   deletedAtIdx: index('idx_users_deleted_at').on(table.deletedAt)

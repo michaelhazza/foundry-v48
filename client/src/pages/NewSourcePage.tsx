@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tantml:react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { api } from '../lib/api';

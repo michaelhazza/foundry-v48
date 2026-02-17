@@ -1,0 +1,54 @@
+modules = ["nodejs-20", "bash", "web"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "55dd4a063122ed36772831905a41aec7bc88427d351fdf6958f7a7d1b3600508"
+APP_URL = "https://de08e65f-a84b-46ee-a9c6-d408d091b530-00-5qk4g3klp472.pike.replit.dev"
+PORT = "5000"
+NODE_ENV = "development"
+LOG_LEVEL = "info"
+MAX_FILE_SIZE_MB = "100"
+SOURCE_RETENTION_DAYS = "30"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "start"]
+build = ["bash", "-c", "npm run build"]
