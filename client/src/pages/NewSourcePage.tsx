@@ -5,7 +5,7 @@ import { Layout } from '../components/Layout';
 import { api } from '../lib/api';
 import { TeamworkDeskConfig } from '../components/TeamworkDeskConfig';
 
-type ApiProvider = 'teamwork_desk' | '';
+type SourceSelection = 'file' | 'teamwork_desk' | '';
 
 interface TeamworkDeskConnectionConfig {
   siteName: string;
@@ -16,10 +16,9 @@ interface TeamworkDeskConnectionConfig {
 export default function NewSourcePage() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [sourceType, setSourceType] = useState<'file' | 'api'>('file');
+  const [sourceSelection, setSourceSelection] = useState<SourceSelection>('');
   const [file, setFile] = useState<File | null>(null);
   const [projectId, setProjectId] = useState('');
-  const [apiProvider, setApiProvider] = useState<ApiProvider>('');
   const [teamworkDeskConfig, setTeamworkDeskConfig] = useState<TeamworkDeskConnectionConfig | null>(null);
   const [error, setError] = useState('');
 
@@ -59,46 +58,40 @@ export default function NewSourcePage() {
     e.preventDefault();
     setError('');
 
-    if (sourceType === 'api') {
-      if (apiProvider === 'teamwork_desk') {
-        if (!teamworkDeskConfig) {
-          setError('Please test the connection before creating the source.');
-          return;
-        }
-        createTeamworkDeskMutation.mutate({
-          projectId,
-          name,
-          siteName: teamworkDeskConfig.siteName,
-          apiKey: teamworkDeskConfig.apiKey,
-          dataType: teamworkDeskConfig.dataType,
-        });
-      } else {
-        setError('Please select an API provider.');
+    if (sourceSelection === 'teamwork_desk') {
+      if (!teamworkDeskConfig) {
+        setError('Please test the connection before creating the source.');
+        return;
       }
+      createTeamworkDeskMutation.mutate({
+        projectId,
+        name,
+        siteName: teamworkDeskConfig.siteName,
+        apiKey: teamworkDeskConfig.apiKey,
+        dataType: teamworkDeskConfig.dataType,
+      });
       return;
     }
 
-    // File upload path
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('sourceType', sourceType);
-    formData.append('projectId', projectId);
-    if (file) {
-      formData.append('file', file);
+    if (sourceSelection === 'file') {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('sourceType', 'file');
+      formData.append('projectId', projectId);
+      if (file) {
+        formData.append('file', file);
+      }
+      createFileMutation.mutate(formData);
+      return;
     }
-    createFileMutation.mutate(formData);
+
+    setError('Please select a source type.');
   };
 
-  function handleSourceTypeChange(value: 'file' | 'api') {
-    setSourceType(value);
-    setApiProvider('');
+  function handleSourceSelectionChange(value: SourceSelection) {
+    setSourceSelection(value);
     setTeamworkDeskConfig(null);
-    setError('');
-  }
-
-  function handleApiProviderChange(value: ApiProvider) {
-    setApiProvider(value);
-    setTeamworkDeskConfig(null);
+    setFile(null);
     setError('');
   }
 
@@ -150,16 +143,17 @@ export default function NewSourcePage() {
                   Source Type *
                 </label>
                 <select
-                  value={sourceType}
-                  onChange={(e) => handleSourceTypeChange(e.target.value as 'file' | 'api')}
+                  value={sourceSelection}
+                  onChange={(e) => handleSourceSelectionChange(e.target.value as SourceSelection)}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
+                  <option value="">Select a source type...</option>
+                  <option value="teamwork_desk">Teamwork Desk</option>
                   <option value="file">File Upload</option>
-                  <option value="api">API Connection</option>
                 </select>
               </div>
 
-              {sourceType === 'file' && (
+              {sourceSelection === 'file' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Upload File
@@ -173,30 +167,12 @@ export default function NewSourcePage() {
                 </div>
               )}
 
-              {sourceType === 'api' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      API Provider *
-                    </label>
-                    <select
-                      value={apiProvider}
-                      onChange={(e) => handleApiProviderChange(e.target.value as ApiProvider)}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    >
-                      <option value="">Select a provider...</option>
-                      <option value="teamwork_desk">Teamwork Desk</option>
-                    </select>
-                  </div>
-
-                  {apiProvider === 'teamwork_desk' && (
-                    <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                      <h3 className="text-sm font-medium text-gray-900 mb-4">
-                        Teamwork Desk Configuration
-                      </h3>
-                      <TeamworkDeskConfig onConfigChange={setTeamworkDeskConfig} />
-                    </div>
-                  )}
+              {sourceSelection === 'teamwork_desk' && (
+                <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                  <h3 className="text-sm font-medium text-gray-900 mb-4">
+                    Teamwork Desk Configuration
+                  </h3>
+                  <TeamworkDeskConfig onConfigChange={setTeamworkDeskConfig} />
                 </div>
               )}
             </div>
