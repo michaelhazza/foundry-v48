@@ -34,8 +34,8 @@ for ((i=0; i<ENDPOINT_COUNT; i++)); do
     SERVICE_FILE=$(jq -r ".endpoints[$i].serviceContract.serviceFile" service-contracts.json)
     
     if [[ -z "$SERVICE_FILE" || "$SERVICE_FILE" == "null" ]]; then
-      PATH=$(jq -r ".endpoints[$i].path" service-contracts.json)
-      echo "[⚠️] Required endpoint $PATH missing service file specification"
+      ENDPOINT_PATH=$(jq -r ".endpoints[$i].path" service-contracts.json)
+      echo "[⚠️] Required endpoint $ENDPOINT_PATH missing service file specification"
       MISSING_SERVICE_FILES=$((MISSING_SERVICE_FILES + 1))
     fi
   fi
@@ -58,10 +58,10 @@ for ((i=0; i<PAGE_COUNT; i++)); do
     
     for ((j=0; j<API_CALL_COUNT; j++)); do
       METHOD=$(jq -r ".pages[$i].apiCalls[$j].method" ui-api-deps.json)
-      PATH=$(jq -r ".pages[$i].apiCalls[$j].path" ui-api-deps.json)
-      
-      if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$PATH\")" service-contracts.json > /dev/null; then
-        echo "[⚠️] UI references undefined API endpoint: $METHOD $PATH"
+      ENDPOINT_PATH=$(jq -r ".pages[$i].apiCalls[$j].path" ui-api-deps.json)
+
+      if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$ENDPOINT_PATH\")" service-contracts.json > /dev/null; then
+        echo "[⚠️] UI references undefined API endpoint: $METHOD $ENDPOINT_PATH"
         API_ENDPOINT_MISMATCHES=$((API_ENDPOINT_MISMATCHES + 1))
       fi
     done

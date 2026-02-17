@@ -47,7 +47,19 @@
           "authRequired": false,
           "notes": "Authenticate user and return JWT token"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/RegisterPage.tsx",
@@ -90,7 +102,19 @@
           "authRequired": false,
           "notes": "Create new user account with invite token validation"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/DashboardPage.tsx",
@@ -118,7 +142,10 @@
           "path": "/api/projects",
           "required": true,
           "authRequired": true,
-          "queryParams": ["limit=5", "sort=updatedAt:desc"],
+          "queryParams": [
+            "limit=5",
+            "sort=updatedAt:desc"
+          ],
           "notes": "Recent projects for dashboard overview"
         },
         {
@@ -126,7 +153,10 @@
           "path": "/api/datasets",
           "required": true,
           "authRequired": true,
-          "queryParams": ["limit=5", "sort=createdAt:desc"],
+          "queryParams": [
+            "limit=5",
+            "sort=createdAt:desc"
+          ],
           "notes": "Recent datasets for dashboard overview"
         },
         {
@@ -134,10 +164,26 @@
           "path": "/api/processing-jobs",
           "required": true,
           "authRequired": true,
-          "queryParams": ["status=processing,queued", "limit=10"],
+          "queryParams": [
+            "status=processing,queued",
+            "limit=10"
+          ],
           "notes": "Active processing jobs for status monitoring"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "data",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "toast",
+        "fallback": "error-boundary"
+      }
     },
     {
       "filePath": "client/src/pages/SettingsPage.tsx",
@@ -171,7 +217,20 @@
           "authRequired": true,
           "notes": "Load current user profile information"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/OrganisationSettingsPage.tsx",
@@ -207,7 +266,20 @@
           "requiredRole": "admin",
           "notes": "Update organisation settings - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/UsersPage.tsx",
@@ -217,8 +289,17 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "email", "role", "createdAt"],
-          "actions": ["view", "edit", "delete"]
+          "columns": [
+            "name",
+            "email",
+            "role",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete"
+          ]
         }
       },
       "apiCalls": [
@@ -269,7 +350,21 @@
           "requiredRole": "admin",
           "notes": "Admin-only user invitation"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectsPage.tsx",
@@ -279,8 +374,18 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "status", "canonicalSchema", "createdAt"],
-          "actions": ["view", "edit", "delete", "create"]
+          "columns": [
+            "name",
+            "status",
+            "canonicalSchema",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete",
+            "create"
+          ]
         }
       },
       "apiCalls": [
@@ -301,7 +406,21 @@
           },
           "notes": "Delete project from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/NewProjectPage.tsx",
@@ -346,7 +465,20 @@
           "authRequired": true,
           "notes": "Create new project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectDetailPage.tsx",
@@ -355,7 +487,12 @@
       "authenticated": true,
       "layoutSpec": {
         "type": "detail-with-tabs",
-        "tabs": ["overview", "sources", "processing", "datasets"]
+        "tabs": [
+          "overview",
+          "sources",
+          "processing",
+          "datasets"
+        ]
       },
       "apiCalls": [
         {
@@ -402,7 +539,20 @@
           "dependsOn": "route.params.projectId",
           "notes": "Load datasets for this project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/SourcesPage.tsx",
@@ -412,8 +562,18 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "type", "status", "createdAt"],
-          "actions": ["view", "edit", "delete", "create"]
+          "columns": [
+            "name",
+            "type",
+            "status",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "delete",
+            "create"
+          ]
         }
       },
       "apiCalls": [
@@ -434,7 +594,21 @@
           },
           "notes": "Delete source from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/NewSourcePage.tsx",
@@ -455,7 +629,10 @@
               "name": "type",
               "type": "select",
               "required": true,
-              "options": ["file", "api"]
+              "options": [
+                "file",
+                "api"
+              ]
             },
             {
               "name": "file",
@@ -480,7 +657,20 @@
           "authRequired": true,
           "notes": "Create new source with file upload capability"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectSourcesPage.tsx",
@@ -490,8 +680,16 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "type", "status", "createdAt"],
-          "actions": ["view", "remove"]
+          "columns": [
+            "name",
+            "type",
+            "status",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "remove"
+          ]
         }
       },
       "apiCalls": [
@@ -513,7 +711,21 @@
           },
           "notes": "View source details"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProcessingJobsPage.tsx",
@@ -523,8 +735,16 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["projectName", "status", "startedAt", "completedAt"],
-          "actions": ["view", "retry"]
+          "columns": [
+            "projectName",
+            "status",
+            "startedAt",
+            "completedAt"
+          ],
+          "actions": [
+            "view",
+            "retry"
+          ]
         }
       },
       "apiCalls": [
@@ -545,7 +765,21 @@
           },
           "notes": "Retry failed processing job"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProcessingJobDetailPage.tsx",
@@ -554,7 +788,12 @@
       "authenticated": true,
       "layoutSpec": {
         "type": "detail-view",
-        "sections": ["status", "configuration", "logs", "output"]
+        "sections": [
+          "status",
+          "configuration",
+          "logs",
+          "output"
+        ]
       },
       "apiCalls": [
         {
@@ -573,7 +812,20 @@
           "dependsOn": "route.params.id",
           "notes": "Retry failed job from detail page"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectProcessingJobsPage.tsx",
@@ -583,8 +835,17 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["status", "startedAt", "completedAt", "recordsProcessed"],
-          "actions": ["view", "retry", "create"]
+          "columns": [
+            "status",
+            "startedAt",
+            "completedAt",
+            "recordsProcessed"
+          ],
+          "actions": [
+            "view",
+            "retry",
+            "create"
+          ]
         }
       },
       "apiCalls": [
@@ -603,7 +864,21 @@
           "authRequired": true,
           "notes": "Create new processing job for this project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/DatasetsPage.tsx",
@@ -613,8 +888,18 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "projectName", "format", "size", "createdAt"],
-          "actions": ["view", "download", "delete"]
+          "columns": [
+            "name",
+            "projectName",
+            "format",
+            "size",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "download",
+            "delete"
+          ]
         }
       },
       "apiCalls": [
@@ -635,7 +920,21 @@
           },
           "notes": "Delete dataset from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/DatasetDetailPage.tsx",
@@ -644,7 +943,12 @@
       "authenticated": true,
       "layoutSpec": {
         "type": "detail-view",
-        "sections": ["metadata", "lineage", "preview", "download"]
+        "sections": [
+          "metadata",
+          "lineage",
+          "preview",
+          "download"
+        ]
       },
       "apiCalls": [
         {
@@ -663,7 +967,20 @@
           "dependsOn": "route.params.id",
           "notes": "Download dataset file"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectDatasetsPage.tsx",
@@ -673,8 +990,17 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "format", "size", "createdAt"],
-          "actions": ["view", "download", "delete"]
+          "columns": [
+            "name",
+            "format",
+            "size",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "download",
+            "delete"
+          ]
         }
       },
       "apiCalls": [
@@ -696,7 +1022,21 @@
           },
           "notes": "Download dataset from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/CanonicalSchemasPage.tsx",
@@ -706,8 +1046,17 @@
       "layoutSpec": {
         "type": "table-with-actions",
         "table": {
-          "columns": ["name", "version", "fieldCount", "createdAt"],
-          "actions": ["view", "edit", "create"]
+          "columns": [
+            "name",
+            "version",
+            "fieldCount",
+            "createdAt"
+          ],
+          "actions": [
+            "view",
+            "edit",
+            "create"
+          ]
         }
       },
       "apiCalls": [
@@ -726,7 +1075,21 @@
           "requiredRole": "admin",
           "notes": "Create new canonical schema - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/CanonicalSchemaDetailPage.tsx",
@@ -735,7 +1098,11 @@
       "authenticated": true,
       "layoutSpec": {
         "type": "detail-view",
-        "sections": ["schema-definition", "field-mappings", "usage"]
+        "sections": [
+          "schema-definition",
+          "field-mappings",
+          "usage"
+        ]
       },
       "apiCalls": [
         {
@@ -755,7 +1122,20 @@
           "dependsOn": "route.params.id",
           "notes": "Update canonical schema - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     }
   ]
 }

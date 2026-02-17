@@ -47,7 +47,19 @@
           "authRequired": false,
           "notes": "Authenticate user and return JWT token"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/RegisterPage.tsx",
@@ -90,11 +102,23 @@
           "authRequired": false,
           "notes": "Create new user account with invite token validation"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/DashboardPage.tsx",
-      "routePath": "/dashboard",
+      "routePath": "/",
       "scope": "required",
       "authenticated": true,
       "layoutSpec": {
@@ -146,7 +170,20 @@
           ],
           "notes": "Active processing jobs for status monitoring"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "data",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "toast",
+        "fallback": "error-boundary"
+      }
     },
     {
       "filePath": "client/src/pages/SettingsPage.tsx",
@@ -180,7 +217,20 @@
           "authRequired": true,
           "notes": "Load current user profile information"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/OrganisationSettingsPage.tsx",
@@ -216,7 +266,20 @@
           "requiredRole": "admin",
           "notes": "Update organisation settings - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/UsersPage.tsx",
@@ -287,7 +350,21 @@
           "requiredRole": "admin",
           "notes": "Admin-only user invitation"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectsPage.tsx",
@@ -329,7 +406,21 @@
           },
           "notes": "Delete project from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/NewProjectPage.tsx",
@@ -374,11 +465,24 @@
           "authRequired": true,
           "notes": "Create new project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectDetailPage.tsx",
-      "routePath": "/projects/:id",
+      "routePath": "/projects/:projectId",
       "scope": "required",
       "authenticated": true,
       "layoutSpec": {
@@ -435,7 +539,20 @@
           "dependsOn": "route.params.projectId",
           "notes": "Load datasets for this project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/SourcesPage.tsx",
@@ -477,7 +594,21 @@
           },
           "notes": "Delete source from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/NewSourcePage.tsx",
@@ -526,7 +657,20 @@
           "authRequired": true,
           "notes": "Create new source with file upload capability"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "local",
+        "variables": [
+          "formData",
+          "isLoading",
+          "error",
+          "isSubmitting"
+        ]
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "form-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectSourcesPage.tsx",
@@ -567,7 +711,21 @@
           },
           "notes": "View source details"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProcessingJobsPage.tsx",
@@ -607,7 +765,21 @@
           },
           "notes": "Retry failed processing job"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/ProcessingJobDetailPage.tsx",
@@ -640,7 +812,20 @@
           "dependsOn": "route.params.id",
           "notes": "Retry failed job from detail page"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectProcessingJobsPage.tsx",
@@ -679,7 +864,21 @@
           "authRequired": true,
           "notes": "Create new processing job for this project"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/DatasetsPage.tsx",
@@ -721,7 +920,21 @@
           },
           "notes": "Delete dataset from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/DatasetDetailPage.tsx",
@@ -754,7 +967,20 @@
           "dependsOn": "route.params.id",
           "notes": "Download dataset file"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     },
     {
       "filePath": "client/src/pages/ProjectDatasetsPage.tsx",
@@ -796,7 +1022,21 @@
           },
           "notes": "Download dataset from table action"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/CanonicalSchemasPage.tsx",
@@ -835,7 +1075,21 @@
           "requiredRole": "admin",
           "notes": "Create new canonical schema - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "items",
+          "isLoading",
+          "error",
+          "pagination"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "above-list"
+      }
     },
     {
       "filePath": "client/src/pages/CanonicalSchemaDetailPage.tsx",
@@ -868,7 +1122,20 @@
           "dependsOn": "route.params.id",
           "notes": "Update canonical schema - admin only"
         }
-      ]
+      ],
+      "stateManagement": {
+        "type": "server-state",
+        "variables": [
+          "item",
+          "isLoading",
+          "error"
+        ],
+        "refetchOnMount": true
+      },
+      "errorDisplay": {
+        "strategy": "inline",
+        "placement": "page-top"
+      }
     }
   ]
 }

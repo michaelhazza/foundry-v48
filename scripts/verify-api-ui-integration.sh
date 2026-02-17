@@ -15,11 +15,11 @@ for ((i=0; i<PAGE_COUNT; i++)); do
   
   for ((j=0; j<API_CALL_COUNT; j++)); do
     METHOD=$(jq -r ".pages[$i].apiCalls[$j].method" ui-api-deps.json)
-    PATH=$(jq -r ".pages[$i].apiCalls[$j].path" ui-api-deps.json)
-    
-    if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$PATH\")" service-contracts.json > /dev/null; then
+    API_PATH=$(jq -r ".pages[$i].apiCalls[$j].path" ui-api-deps.json)
+
+    if ! jq -e ".endpoints[] | select(.method == \"$METHOD\" and .path == \"$API_PATH\")" service-contracts.json > /dev/null; then
       PAGE_PATH=$(jq -r ".pages[$i].routePath" ui-api-deps.json)
-      echo "[❌] Page $PAGE_PATH references undefined endpoint: $METHOD $PATH"
+      echo "[❌] Page $PAGE_PATH references undefined endpoint: $METHOD $API_PATH"
       UNMATCHED_CALLS=$((UNMATCHED_CALLS + 1))
     fi
   done
