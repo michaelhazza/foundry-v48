@@ -25,13 +25,14 @@ fi
 REQUIRED_ENDPOINTS=(
   "POST:/api/auth/register"
   "POST:/api/auth/login"
-  "GET:/api/organisations"
-  "POST:/api/organisations"
+  "GET:/api/auth/session"
+  "GET:/api/organisations/me"
+  "PATCH:/api/organisations/me"
   "GET:/api/projects"
   "POST:/api/projects"
   "GET:/api/sources"
   "POST:/api/sources"
-  "POST:/api/jobs"
+  "POST:/api/processing-jobs"
   "GET:/api/datasets"
 )
 

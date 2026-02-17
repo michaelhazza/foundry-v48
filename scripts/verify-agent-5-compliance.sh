@@ -25,9 +25,9 @@ fi
 REQUIRED_PAGES=(
   "/login"
   "/register"
-  "/dashboard"
+  "/"
   "/projects"
-  "/projects/:id"
+  "/projects/:projectId"
   "/sources"
   "/datasets"
 )
