@@ -8,6 +8,7 @@ import processingJobsRoutes from './processingJobs.routes';
 import datasetsRoutes from './datasets.routes';
 import canonicalSchemasRoutes from './canonicalSchemas.routes';
 import healthRoutes from './health.routes';
+import teamworkDeskRoutes from './teamworkDesk.routes';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/sources', sourcesRoutes);
 router.use('/processing-jobs', processingJobsRoutes);
 router.use('/datasets', datasetsRoutes);
 router.use('/canonical-schemas', canonicalSchemasRoutes);
+router.use('/integrations/teamwork-desk', teamworkDeskRoutes);
 router.use('/', healthRoutes);
 
 export default router;

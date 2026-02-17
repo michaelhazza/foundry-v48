@@ -3,6 +3,15 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { api } from '../lib/api';
+import { TeamworkDeskConfig } from '../components/TeamworkDeskConfig';
+
+type ApiProvider = 'teamwork_desk' | '';
+
+interface TeamworkDeskConnectionConfig {
+  siteName: string;
+  apiKey: string;
+  dataType: 'tickets';
+}
 
 export default function NewSourcePage() {
   const navigate = useNavigate();
@@ -10,9 +19,11 @@ export default function NewSourcePage() {
   const [sourceType, setSourceType] = useState<'file' | 'api'>('file');
   const [file, setFile] = useState<File | null>(null);
   const [projectId, setProjectId] = useState('');
+  const [apiProvider, setApiProvider] = useState<ApiProvider>('');
+  const [teamworkDeskConfig, setTeamworkDeskConfig] = useState<TeamworkDeskConnectionConfig | null>(null);
   const [error, setError] = useState('');
 
-  const createMutation = useMutation({
+  const createFileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       return api.uploadFile('/sources', formData);
     },
@@ -24,8 +35,50 @@ export default function NewSourcePage() {
     }
   });
 
+  const createTeamworkDeskMutation = useMutation({
+    mutationFn: async (payload: {
+      projectId: string;
+      name: string;
+      siteName: string;
+      apiKey: string;
+      dataType: 'tickets';
+    }) => {
+      return api.post('/integrations/teamwork-desk/sources', payload);
+    },
+    onSuccess: () => {
+      navigate('/sources');
+    },
+    onError: (err: any) => {
+      setError(err.message);
+    }
+  });
+
+  const isPending = createFileMutation.isPending || createTeamworkDeskMutation.isPending;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (sourceType === 'api') {
+      if (apiProvider === 'teamwork_desk') {
+        if (!teamworkDeskConfig) {
+          setError('Please test the connection before creating the source.');
+          return;
+        }
+        createTeamworkDeskMutation.mutate({
+          projectId,
+          name,
+          siteName: teamworkDeskConfig.siteName,
+          apiKey: teamworkDeskConfig.apiKey,
+          dataType: teamworkDeskConfig.dataType,
+        });
+      } else {
+        setError('Please select an API provider.');
+      }
+      return;
+    }
+
+    // File upload path
     const formData = new FormData();
     formData.append('name', name);
     formData.append('sourceType', sourceType);
@@ -33,8 +86,21 @@ export default function NewSourcePage() {
     if (file) {
       formData.append('file', file);
     }
-    createMutation.mutate(formData);
+    createFileMutation.mutate(formData);
   };
+
+  function handleSourceTypeChange(value: 'file' | 'api') {
+    setSourceType(value);
+    setApiProvider('');
+    setTeamworkDeskConfig(null);
+    setError('');
+  }
+
+  function handleApiProviderChange(value: ApiProvider) {
+    setApiProvider(value);
+    setTeamworkDeskConfig(null);
+    setError('');
+  }
 
   return (
     <Layout>
@@ -85,7 +151,7 @@ export default function NewSourcePage() {
                 </label>
                 <select
                   value={sourceType}
-                  onChange={(e) => setSourceType(e.target.value as any)}
+                  onChange={(e) => handleSourceTypeChange(e.target.value as 'file' | 'api')}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="file">File Upload</option>
@@ -106,15 +172,42 @@ export default function NewSourcePage() {
                   />
                 </div>
               )}
+
+              {sourceType === 'api' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      API Provider *
+                    </label>
+                    <select
+                      value={apiProvider}
+                      onChange={(e) => handleApiProviderChange(e.target.value as ApiProvider)}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="">Select a provider...</option>
+                      <option value="teamwork_desk">Teamwork Desk</option>
+                    </select>
+                  </div>
+
+                  {apiProvider === 'teamwork_desk' && (
+                    <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                      <h3 className="text-sm font-medium text-gray-900 mb-4">
+                        Teamwork Desk Configuration
+                      </h3>
+                      <TeamworkDeskConfig onConfigChange={setTeamworkDeskConfig} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex space-x-3">
               <button
                 type="submit"
-                disabled={createMutation.isPending}
+                disabled={isPending}
                 className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
               >
-                {createMutation.isPending ? 'Creating...' : 'Create Source'}
+                {isPending ? 'Creating...' : 'Create Source'}
               </button>
               <button
                 type="button"
