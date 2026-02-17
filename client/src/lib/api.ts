@@ -32,6 +32,10 @@ class ApiClient {
       } catch {
         errorMessage = `Server error (${response.status})`;
       }
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
       throw new Error(errorMessage);
     }
 
